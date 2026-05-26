@@ -1,4 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salary System</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
+
+body{
+background:#f1f5f9;
+padding:20px;
+}
+
+.container{
+max-width:1400px;
+margin:auto;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:15px;
+margin-bottom:20px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+input,
+select,
+button{
+padding:10px;
+margin:5px;
+border-radius:10px;
+border:1px solid #ccc;
+}
+
+button{
+background:#2563eb;
+color:white;
+border:none;
+cursor:pointer;
+}
+
+button:hover{
+background:#1d4ed8;
+}
+
+.hidden{
+display:none;
+}
+
+.calendar{
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:10px;
+margin-top:20px;
+}
+
+.day{
+padding:15px;
+background:#ddd;
+text-align:center;
+border-radius:10px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.present{
+background:#2563eb;
+color:white;
+}
+
+.absent{
+background:red;
+color:white;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+table th,
+table td{
+border:1px solid #ccc;
+padding:10px;
+text-align:center;
+}
+
+th{
+background:#111827;
+color:white;
+}
+
+.logo{
+width:120px;
+height:120px;
+border-radius:20px;
+object-fit:cover;
+display:block;
+margin:auto;
+margin-bottom:20px;
+}
+
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- LOGIN -->
+
+<div class="container" id="loginPage">
+
+<div class="card" style="max-width:400px;margin:auto;margin-top:50px;">
+
+<img
+id="loginLogo"
+class="logo"
+src="https://upload.wikimedia.org/wikipedia/commons/a/ab/Logo_TV_2015.png"
+>
+
+<h1 id="loginTitle">
+Login
+</h1>
+
+<form id="loginForm">
+
+<input
+type="text"
+id="username"
+placeholder="Username"
+required
+>
+
+<input
+type="password"
+id="password"
+placeholder="Password"
+required
+>
+
+<button type="submit" id="loginBtn">
+Login
+</button>
+
+</form>
+
+</div>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="container hidden" id="mainPage">
+
+<div class="card">
+
+<div class="topbar">
+
+<h1 id="mainTitle">
+Salary System
+</h1>
+
+<div>
+
+<select id="language"
+onchange="changeLanguage()">
+
+<option value="en">
+English
+</option>
+
+<option value="mm">
+မြန်မာ
+</option>
+
+</select>
+
+<button onclick="openSettings()"
+id="settingBtn">
+
+Settings
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- SETTINGS -->
+
+<div class="card hidden"
+id="settingsBox">
+
+<h2 id="settingTitle">
+Settings
+</h2>
+
+<input
+type="text"
+id="newUsername"
+placeholder="New Username"
+>
+
+<input
+type="password"
+id="newPassword"
+placeholder="New Password"
+>
+
+<input
+type="text"
+id="logoUrl"
+placeholder="Logo Image URL"
+>
+
+<button onclick="saveSettings()"
+id="saveSettingBtn">
+
+Save Settings
+
+</button>
+
+</div>
+
+<!-- INPUT -->
+
+<div class="card">
+
+<select id="employee">
+
+<option>Zin Wai Min</option>
+
+<option>Khom</option>
+
+<option>Zin Min Thu</option>
+
+</select>
+
+<input
+type="number"
+id="dailySalary"
+placeholder="Daily Salary"
+value="500"
+>
+
+<input type="month" id="month">
+
+<br>
+
+<input
+type="number"
+id="room"
+placeholder="Room Rent"
+>
+
+<input
+type="number"
+id="food"
+placeholder="Food Cost"
+>
+
+<input
+type="number"
+id="bike"
+placeholder="Bike Cost"
+>
+
+<input
+type="number"
+id="fuel"
+placeholder="Fuel Cost"
+>
+
+<input
+type="number"
+id="debt"
+placeholder="Debt"
+>
+
+<input
+type="number"
+id="home"
+placeholder="Home Payment"
+>
+
+<input
+type="number"
+id="other"
+placeholder="Other Cost"
+>
+
+<!-- CALENDAR -->
+
+<div class="calendar" id="calendar"></div>
+
+<h3>
+
+<span id="presentText">
+Present
+</span>
+
+:
+<span id="presentCount">
+0
+</span>
+
+|
+
+<span id="absentText">
+Absent
+</span>
+
+:
+<span id="absentCount">
+0
+</span>
+
+|
+
+<span id="salaryText">
+Salary
+</span>
+
+:
+<span id="salaryTotal">
+0
+</span>
+
+|
+
+<span id="finalText">
+Final Salary
+</span>
+
+:
+<span id="finalSalary">
+0
+</span>
+
+</h3>
+
+</div>
+
+<!-- TABLE -->
+
+<div class="card">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th id="thName">
+Name
+</th>
+
+<th id="thPresent">
+Present
+</th>
+
+<th id="thAbsent">
+Absent
+</th>
+
+<th id="thSalary">
+Salary
+</th>
+
+<th id="thRoom">
+Room
+</th>
+
+<th id="thFood">
+Food
+</th>
+
+<th id="thBike">
+Bike
+</th>
+
+<th id="thFuel">
+Fuel
+</th>
+
+<th id="thDebt">
+Debt
+</th>
+
+<th id="thHome">
+Home
+</th>
+
+<th id="thOther">
+Other
+</th>
+
+<th id="thFinal">
+Final
+</th>
+
+<th id="thAction">
+Action
+</th>
+
+</tr>
+
+</thead>
+
+<tbody id="tableBody"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
 <script>
+
+/* LOGIN */
+
+let loginUsername =
+localStorage.getItem("username") || "admin";
+
+let loginPassword =
+localStorage.getItem("password") || "1234";
+
+let savedLogo =
+localStorage.getItem("logo");
+
+if(savedLogo){
+
+document.getElementById("loginLogo").src =
+savedLogo;
+
+}
+
+document.getElementById("loginForm")
+.addEventListener("submit",function(e){
+
+e.preventDefault();
+
+let user =
+document.getElementById("username").value.trim();
+
+let pass =
+document.getElementById("password").value.trim();
+
+if(user === loginUsername &&
+pass === loginPassword){
+
+document.getElementById("loginPage")
+.classList.add("hidden");
+
+document.getElementById("mainPage")
+.classList.remove("hidden");
+
+}
+else{
+
+alert("Wrong Username or Password");
+
+}
+
+});
+
+/* SETTINGS */
+
+function openSettings(){
+
+document.getElementById("settingsBox")
+.classList.toggle("hidden");
+
+}
+
+function saveSettings(){
+
+let newUser =
+document.getElementById("newUsername").value;
+
+let newPass =
+document.getElementById("newPassword").value;
+
+let logo =
+document.getElementById("logoUrl").value;
+
+if(newUser){
+
+localStorage.setItem(
+"username",
+newUser
+);
+
+loginUsername = newUser;
+
+}
+
+if(newPass){
+
+localStorage.setItem(
+"password",
+newPass
+);
+
+loginPassword = newPass;
+
+}
+
+if(logo){
+
+localStorage.setItem(
+"logo",
+logo
+);
+
+document.getElementById("loginLogo").src =
+logo;
+
+}
+
+alert("Saved");
+
+}
+
+/* SALARY */
 
 let present = 0;
 let absent = 0;
@@ -45,6 +588,7 @@ present++;
 }
 
 updateData();
+
 autoSave();
 
 };
@@ -61,10 +605,11 @@ document.getElementById("presentCount")
 document.getElementById("absentCount")
 .innerText = absent;
 
-let dailySalary =
+let daily =
 Number(document.getElementById("dailySalary").value || 0);
 
-let salary = present * dailySalary;
+let salary =
+present * daily;
 
 document.getElementById("salaryTotal")
 .innerText = salary;
@@ -88,280 +633,4 @@ let home =
 Number(document.getElementById("home").value || 0);
 
 let other =
-Number(document.getElementById("other").value || 0);
-
-let finalSalary =
-salary - room - food - bike - fuel - debt - home - other;
-
-document.getElementById("finalSalary")
-.innerText = finalSalary;
-
-}
-
-document.querySelectorAll("input")
-.forEach(input=>{
-
-input.addEventListener("input",function(){
-
-updateData();
-
-autoSave();
-
-});
-
-});
-
-function autoSave(){
-
-let name =
-document.getElementById("employee").value;
-
-employeeData[name] = {
-
-present,
-
-absent,
-
-salary:
-document.getElementById("salaryTotal").innerText,
-
-room:
-document.getElementById("room").value || 0,
-
-food:
-document.getElementById("food").value || 0,
-
-bike:
-document.getElementById("bike").value || 0,
-
-fuel:
-document.getElementById("fuel").value || 0,
-
-debt:
-document.getElementById("debt").value || 0,
-
-home:
-document.getElementById("home").value || 0,
-
-other:
-document.getElementById("other").value || 0,
-
-final:
-document.getElementById("finalSalary").innerText
-
-};
-
-renderTable();
-
-}
-
-function renderTable(){
-
-let table =
-document.getElementById("tableBody");
-
-table.innerHTML = "";
-
-for(let name in employeeData){
-
-let d = employeeData[name];
-
-table.innerHTML += `
-
-<tr>
-
-<td>${name}</td>
-
-<td>${d.present}</td>
-
-<td>${d.absent}</td>
-
-<td>${d.salary}</td>
-
-<td>${d.room}</td>
-
-<td>${d.food}</td>
-
-<td>${d.bike}</td>
-
-<td>${d.fuel}</td>
-
-<td>${d.debt}</td>
-
-<td>${d.home}</td>
-
-<td>${d.other}</td>
-
-<td>${d.final}</td>
-
-<td>
-
-<button onclick="editData('${name}')">
-Edit
-</button>
-
-<button onclick="deleteData('${name}')">
-Delete
-</button>
-
-</td>
-
-</tr>
-
-`;
-
-}
-
-}
-
-function editData(name){
-
-let d = employeeData[name];
-
-document.getElementById("employee").value = name;
-
-document.getElementById("room").value = d.room;
-
-document.getElementById("food").value = d.food;
-
-document.getElementById("bike").value = d.bike;
-
-document.getElementById("fuel").value = d.fuel;
-
-document.getElementById("debt").value = d.debt;
-
-document.getElementById("home").value = d.home;
-
-document.getElementById("other").value = d.other;
-
-present = d.present;
-
-absent = d.absent;
-
-document.getElementById("presentCount")
-.innerText = present;
-
-document.getElementById("absentCount")
-.innerText = absent;
-
-document.getElementById("salaryTotal")
-.innerText = d.salary;
-
-document.getElementById("finalSalary")
-.innerText = d.final;
-
-}
-
-function deleteData(name){
-
-delete employeeData[name];
-
-renderTable();
-
-}
-
-function changeLanguage(){
-
-let lang =
-document.getElementById("language").value;
-
-if(lang === "mm"){
-
-document.getElementById("mainTitle")
-.innerText = "လစာစနစ်";
-
-document.getElementById("summaryTitle")
-.innerText = "အကျဉ်းချုပ်";
-
-document.getElementById("thName")
-.innerText = "အမည်";
-
-document.getElementById("thPresent")
-.innerText = "ဆင်းရက်";
-
-document.getElementById("thAbsent")
-.innerText = "ပျက်ရက်";
-
-document.getElementById("thSalary")
-.innerText = "လစာ";
-
-document.getElementById("thRoom")
-.innerText = "အခန်းခ";
-
-document.getElementById("thFood")
-.innerText = "စားစရိတ်";
-
-document.getElementById("thBike")
-.innerText = "ဆိုင်ကယ်";
-
-document.getElementById("thFuel")
-.innerText = "ဆီဖိုး";
-
-document.getElementById("thDebt")
-.innerText = "အကြွေး";
-
-document.getElementById("thHome")
-.innerText = "အိမ်ပို့ငွေ";
-
-document.getElementById("thOther")
-.innerText = "အခြား";
-
-document.getElementById("thFinal")
-.innerText = "ကျန်ငွေ";
-
-document.getElementById("thAction")
-.innerText = "လုပ်ဆောင်ချက်";
-
-}
-else{
-
-document.getElementById("mainTitle")
-.innerText = "Salary System";
-
-document.getElementById("summaryTitle")
-.innerText = "Summary";
-
-document.getElementById("thName")
-.innerText = "Name";
-
-document.getElementById("thPresent")
-.innerText = "Present";
-
-document.getElementById("thAbsent")
-.innerText = "Absent";
-
-document.getElementById("thSalary")
-.innerText = "Salary";
-
-document.getElementById("thRoom")
-.innerText = "Room";
-
-document.getElementById("thFood")
-.innerText = "Food";
-
-document.getElementById("thBike")
-.innerText = "Bike";
-
-document.getElementById("thFuel")
-.innerText = "Fuel";
-
-document.getElementById("thDebt")
-.innerText = "Debt";
-
-document.getElementById("thHome")
-.innerText = "Home";
-
-document.getElementById("thOther")
-.innerText = "Other";
-
-document.getElementById("thFinal")
-.innerText = "Final";
-
-document.getElementById("thAction")
-.innerText = "Action";
-
-}
-
-}
-
-</script>
+Number(document.getElem
