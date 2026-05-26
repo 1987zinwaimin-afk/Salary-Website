@@ -7,115 +7,118 @@
 
 <style>
 
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
 body{
-    font-family:Arial,sans-serif;
-    background:#f1f5f9;
-    margin:0;
-    padding:20px;
+background:#f1f5f9;
+padding:20px;
 }
 
 .card{
-    background:white;
-    padding:20px;
-    border-radius:15px;
-    margin-bottom:20px;
-    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+background:white;
+padding:20px;
+border-radius:15px;
+margin-bottom:20px;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
 }
 
-h1,h2,h3{
-    margin:10px 0;
+h1,h2{
+margin-bottom:15px;
 }
 
 input,select{
-    padding:10px;
-    margin:5px;
-    border-radius:8px;
-    border:1px solid #ccc;
+padding:10px;
+margin:5px;
+border-radius:8px;
+border:1px solid #ccc;
 }
 
 button{
-    padding:10px 15px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    background:#2563eb;
-    color:white;
-    margin:5px;
+padding:10px 15px;
+background:#2563eb;
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+margin:5px;
 }
 
 .calendar{
-    display:grid;
-    grid-template-columns:repeat(7,1fr);
-    gap:10px;
-    margin-top:20px;
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:10px;
+margin-top:20px;
 }
 
 .day{
-    background:#ddd;
-    padding:15px;
-    text-align:center;
-    border-radius:10px;
-    cursor:pointer;
-    font-weight:bold;
+background:#ddd;
+padding:15px;
+text-align:center;
+border-radius:10px;
+cursor:pointer;
+font-weight:bold;
 }
 
 .present{
-    background:#2563eb;
-    color:white;
+background:#2563eb;
+color:white;
 }
 
 .absent{
-    background:#dc2626;
-    color:white;
+background:#dc2626;
+color:white;
 }
 
 table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:20px;
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
 }
 
-table th,table td{
-    border:1px solid #ccc;
-    padding:10px;
-    text-align:center;
+table th,
+table td{
+border:1px solid #ccc;
+padding:10px;
+text-align:center;
 }
 
 th{
-    background:#111827;
-    color:white;
+background:#111827;
+color:white;
 }
 
 .hidden{
-    display:none;
-}
-
-.settings{
-    float:right;
+display:none;
 }
 
 @media(max-width:768px){
 
 .calendar{
-    grid-template-columns:repeat(4,1fr);
-}
-
-table{
-    font-size:12px;
+grid-template-columns:repeat(4,1fr);
 }
 
 input,select{
-    width:90%;
+width:90%;
+}
+
+table{
+font-size:12px;
 }
 
 }
 
 </style>
+
 </head>
 
 <body>
 
-<!-- LOGIN -->
+<!-- LOGIN PAGE -->
 
 <div class="card" id="loginPage">
 
@@ -125,19 +128,17 @@ input,select{
 
 <input type="password" id="loginPassword" placeholder="Password">
 
+<br>
+
 <button onclick="login()">Login</button>
 
 </div>
 
-<!-- MAIN -->
+<!-- MAIN PAGE -->
 
 <div id="mainPage" class="hidden">
 
 <div class="card">
-
-<button class="settings" onclick="openSettings()">
-⚙ Settings
-</button>
 
 <h1 id="titleText">Salary Management System</h1>
 
@@ -168,9 +169,15 @@ input,select{
 
 </select>
 
-<br><br>
+<button onclick="openSettings()">⚙ Settings</button>
 
-<select id="employeeSelect" onchange="changeEmployee()">
+</div>
+
+<div class="card">
+
+<h2 id="employeeText">Employee</h2>
+
+<select id="employeeSelect" onchange="loadEmployee()">
 
 <option value="Zin Wai Min">Zin Wai Min</option>
 
@@ -188,15 +195,23 @@ input,select{
 
 <h2 id="attendanceText">Attendance</h2>
 
+<p>Blue = Present | Red = Absent</p>
+
 <div class="calendar" id="calendar"></div>
 
 <br>
 
-<p id="presentText">Present Days : <span id="presentCount">0</span></p>
+<p id="presentLabel">
+Present : <span id="presentCount">0</span>
+</p>
 
-<p id="absentText">Absent Days : <span id="absentCount">0</span></p>
+<p id="absentLabel">
+Absent : <span id="absentCount">0</span>
+</p>
 
-<p id="salaryText">Salary : <span id="salaryTotal">0</span> Ks</p>
+<p id="salaryLabel">
+Salary : <span id="salaryTotal">0</span>
+</p>
 
 </div>
 
@@ -208,7 +223,7 @@ input,select{
 
 <input type="number" id="food" placeholder="Food">
 
-<input type="number" id="bike" placeholder="Bike Payment">
+<input type="number" id="bike" placeholder="Bike">
 
 <input type="number" id="fuel" placeholder="Fuel">
 
@@ -220,7 +235,7 @@ input,select{
 
 <div class="card">
 
-<h2 id="employeeListText">Employee List</h2>
+<h2 id="listText">Employee List</h2>
 
 <table>
 
@@ -240,7 +255,6 @@ input,select{
 <th>Debt</th>
 <th>Home</th>
 <th>Final</th>
-<th>Edit</th>
 
 </tr>
 
@@ -260,17 +274,13 @@ input,select{
 
 <h1>Settings</h1>
 
-<h3>Change Username</h3>
+<input type="text" id="newUsername" placeholder="New Username">
 
-<input type="text" id="newUsername">
-
-<h3>Change Password</h3>
-
-<input type="password" id="newPassword">
+<input type="password" id="newPassword" placeholder="New Password">
 
 <br>
 
-<button onclick="saveSettings()">Save Settings</button>
+<button onclick="saveSettings()">Save</button>
 
 <button onclick="closeSettings()">Back</button>
 
@@ -278,21 +288,19 @@ input,select{
 
 <script>
 
-let savedUsername =
-localStorage.getItem("username") || "admin";
-
-let savedPassword =
-localStorage.getItem("password") || "1234";
+let savedUsername = "admin";
+let savedPassword = "1234";
 
 function login(){
 
-let user =
+let username =
 document.getElementById("loginUsername").value;
 
-let pass =
+let password =
 document.getElementById("loginPassword").value;
 
-if(user === savedUsername && pass === savedPassword){
+if(username === savedUsername &&
+password === savedPassword){
 
 document.getElementById("loginPage")
 .classList.add("hidden");
@@ -338,10 +346,6 @@ document.getElementById("newUsername").value;
 savedPassword =
 document.getElementById("newPassword").value;
 
-localStorage.setItem("username",savedUsername);
-
-localStorage.setItem("password",savedPassword);
-
 alert("Settings Saved");
 
 }
@@ -349,7 +353,9 @@ alert("Settings Saved");
 let employees = {
 
 "Zin Wai Min": createEmployee(),
+
 "Khom": createEmployee(),
+
 "Zin Min Thu": createEmployee()
 
 };
@@ -361,6 +367,7 @@ return{
 present:0,
 absent:0,
 days:{},
+
 room:0,
 food:0,
 bike:0,
@@ -386,10 +393,10 @@ day.innerText = i;
 
 day.onclick = function(){
 
-let emp =
-employees[
-document.getElementById("employeeSelect").value
-];
+let name =
+document.getElementById("employeeSelect").value;
+
+let emp = employees[name];
 
 if(day.classList.contains("present")){
 
@@ -432,12 +439,6 @@ calendar.appendChild(day);
 
 }
 
-function changeEmployee(){
-
-loadEmployee();
-
-}
-
 function loadEmployee(){
 
 let name =
@@ -451,15 +452,13 @@ document.querySelectorAll(".day")
 day.classList.remove("present");
 day.classList.remove("absent");
 
-let status = emp.days[index+1];
-
-if(status==="present"){
+if(emp.days[index+1] === "present"){
 
 day.classList.add("present");
 
 }
 
-if(status==="absent"){
+if(emp.days[index+1] === "absent"){
 
 day.classList.add("absent");
 
@@ -489,4 +488,21 @@ updateEmployee();
 
 }
 
-func
+function updateEmployee(){
+
+let name =
+document.getElementById("employeeSelect").value;
+
+let emp = employees[name];
+
+emp.room =
+Number(document.getElementById("room").value || 0);
+
+emp.food =
+Number(document.getElementById("food").value || 0);
+
+emp.bike =
+Number(document.getElementById("bike").value || 0);
+
+emp.fuel =
+Num
