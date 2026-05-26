@@ -1,26 +1,22 @@
-let salary = document.getElementById("salary").innerText;
+let expense = room + food + bike + fuel + debt + home;
 
-    let finalSalary = document.getElementById("finalSalary").innerText;
+    let finalSalary = salary - expense;
 
     let row = `
     <tr>
-        <td>${name}</td>
-        <td>${present}</td>
-        <td>${absent}</td>
-        <td>${salary}</td>
-        <td>${finalSalary}</td>
+    <td>${name}</td>
+    <td>${present}</td>
+    <td>${absent}</td>
+    <td>${salary}</td>
+    <td>${expense}</td>
+    <td>${finalSalary}</td>
 
-        <td>
-            <button class="editBtn" onclick="editRow(this)">
-            Edit
-            </button>
-        </td>
+    <td>
+    <button class="editBtn" onclick="editRow(this)">Edit</button>
 
-        <td>
-            <button class="deleteBtn" onclick="deleteRow(this)">
-            Delete
-            </button>
-        </td>
+    <button class="deleteBtn" onclick="deleteRow(this)">Delete</button>
+    </td>
+
     </tr>
     `;
 
