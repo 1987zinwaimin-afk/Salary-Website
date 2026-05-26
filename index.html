@@ -17,16 +17,14 @@ padding:20px;
 background:white;
 padding:20px;
 border-radius:15px;
-max-width:500px;
+max-width:1200px;
 margin:auto;
-margin-top:50px;
 box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
-input,button{
-width:100%;
-padding:12px;
-margin-top:10px;
+input,select,button{
+padding:10px;
+margin:5px;
 border-radius:8px;
 border:1px solid #ccc;
 }
@@ -36,6 +34,49 @@ background:#2563eb;
 color:white;
 border:none;
 cursor:pointer;
+}
+
+.calendar{
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:10px;
+margin-top:20px;
+}
+
+.day{
+background:#ddd;
+padding:15px;
+text-align:center;
+border-radius:10px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.present{
+background:#2563eb;
+color:white;
+}
+
+.absent{
+background:red;
+color:white;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+table th,table td{
+border:1px solid #ccc;
+padding:10px;
+text-align:center;
+}
+
+th{
+background:#111827;
+color:white;
 }
 
 .hidden{
@@ -48,58 +89,127 @@ display:none;
 
 <body>
 
+<!-- LOGIN -->
+
 <div class="box" id="loginPage">
 
-<h2>Login</h2>
+<h1>Login</h1>
 
-<form id="loginForm">
+<input type="text" id="username" placeholder="Username">
 
-<input
-type="text"
-id="username"
-placeholder="Username"
-required
->
+<input type="password" id="password" placeholder="Password">
 
-<input
-type="password"
-id="password"
-placeholder="Password"
-required
->
+<br>
 
-<button type="submit">
-Login
-</button>
-
-</form>
+<button id="loginBtn">Login</button>
 
 </div>
 
+<!-- MAIN -->
+
 <div class="box hidden" id="mainPage">
 
-<h1>Salary System ✅</h1>
+<h1 id="titleText">Salary System</h1>
 
-<p>
-Login Success
-</p>
+<select id="language">
+
+<option value="en">English</option>
+
+<option value="mm">မြန်မာ</option>
+
+</select>
+
+<select id="employee">
+
+<option>Zin Wai Min</option>
+
+<option>Khom</option>
+
+<option>Zin Min Thu</option>
+
+</select>
+
+<input type="number" id="dailySalary" placeholder="Daily Salary" value="500">
+
+<input type="month" id="month">
+
+<div class="calendar" id="calendar"></div>
+
+<h3>
+Present :
+<span id="presentCount">0</span>
+
+|
+
+Absent :
+<span id="absentCount">0</span>
+
+|
+
+Salary :
+<span id="salaryTotal">0</span>
+</h3>
+
+<hr>
+
+<input type="number" id="room" placeholder="Room Rent">
+
+<input type="number" id="food" placeholder="Food">
+
+<input type="number" id="bike" placeholder="Bike">
+
+<input type="number" id="fuel" placeholder="Fuel">
+
+<input type="number" id="debt" placeholder="Debt">
+
+<input type="number" id="home" placeholder="Home">
+
+<input type="number" id="other" placeholder="Other">
+
+<br>
+
+<button id="saveBtn">Save</button>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Name</th>
+<th>Present</th>
+<th>Absent</th>
+<th>Salary</th>
+<th>Final Salary</th>
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+<tbody id="tableBody"></tbody>
+
+</table>
 
 </div>
 
 <script>
 
-const form =
-document.getElementById("loginForm");
+let present = 0;
+let absent = 0;
 
-form.addEventListener("submit",function(e){
+let data = {};
 
-e.preventDefault();
+const loginBtn =
+document.getElementById("loginBtn");
+
+loginBtn.addEventListener("click",function(){
 
 let user =
-document.getElementById("username").value.trim();
+document.getElementById("username").value;
 
 let pass =
-document.getElementById("password").value.trim();
+document.getElementById("password").value;
 
 if(user === "admin" && pass === "1234"){
 
@@ -113,6 +223,193 @@ document.getElementById("mainPage")
 else{
 
 alert("Wrong Username or Password");
+
+}
+
+});
+
+const calendar =
+document.getElementById("calendar");
+
+for(let i=1;i<=31;i++){
+
+let day =
+document.createElement("div");
+
+day.classList.add("day");
+
+day.innerText = i;
+
+day.addEventListener("click",function(){
+
+if(day.classList.contains("present")){
+
+day.classList.remove("present");
+
+day.classList.add("absent");
+
+present--;
+absent++;
+
+}
+else if(day.classList.contains("absent")){
+
+day.classList.remove("absent");
+
+absent--;
+
+}
+else{
+
+day.classList.add("present");
+
+present++;
+
+}
+
+updateSalary();
+
+});
+
+calendar.appendChild(day);
+
+}
+
+function updateSalary(){
+
+document.getElementById("presentCount")
+.innerText = present;
+
+document.getElementById("absentCount")
+.innerText = absent;
+
+let daily =
+Number(document.getElementById("dailySalary").value || 0);
+
+let salary = present * daily;
+
+document.getElementById("salaryTotal")
+.innerText = salary;
+
+}
+
+document.getElementById("dailySalary")
+.addEventListener("input",updateSalary);
+
+document.getElementById("saveBtn")
+.addEventListener("click",function(){
+
+let name =
+document.getElementById("employee").value;
+
+let salary =
+Number(document.getElementById("salaryTotal").innerText);
+
+let room =
+Number(document.getElementById("room").value || 0);
+
+let food =
+Number(document.getElementById("food").value || 0);
+
+let bike =
+Number(document.getElementById("bike").value || 0);
+
+let fuel =
+Number(document.getElementById("fuel").value || 0);
+
+let debt =
+Number(document.getElementById("debt").value || 0);
+
+let home =
+Number(document.getElementById("home").value || 0);
+
+let other =
+Number(document.getElementById("other").value || 0);
+
+let finalSalary =
+salary - room - food - bike - fuel - debt - home - other;
+
+data[name] = {
+
+present,
+absent,
+salary,
+finalSalary
+
+};
+
+renderTable();
+
+});
+
+function renderTable(){
+
+let table =
+document.getElementById("tableBody");
+
+table.innerHTML = "";
+
+for(let name in data){
+
+table.innerHTML += `
+
+<tr>
+
+<td>${name}</td>
+
+<td>${data[name].present}</td>
+
+<td>${data[name].absent}</td>
+
+<td>${data[name].salary}</td>
+
+<td>${data[name].finalSalary}</td>
+
+<td>
+
+<button onclick="deleteData('${name}')">
+Delete
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+}
+
+}
+
+function deleteData(name){
+
+delete data[name];
+
+renderTable();
+
+}
+
+document.getElementById("language")
+.addEventListener("change",function(){
+
+let lang = this.value;
+
+if(lang === "mm"){
+
+document.getElementById("titleText")
+.innerText = "လစာစနစ်";
+
+document.getElementById("saveBtn")
+.innerText = "သိမ်းမည်";
+
+}
+else{
+
+document.getElementById("titleText")
+.innerText = "Salary System";
+
+document.getElementById("saveBtn")
+.innerText = "Save";
 
 }
 
