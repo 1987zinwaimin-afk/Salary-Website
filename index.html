@@ -3,18 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Salary Management System</title>
+
+<title>Salary System</title>
 
 <style>
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
 body{
+font-family:Arial;
 background:#f1f5f9;
 padding:20px;
 }
@@ -23,93 +18,34 @@ padding:20px;
 background:white;
 padding:20px;
 border-radius:15px;
-margin-bottom:20px;
+max-width:400px;
+margin:auto;
+margin-top:100px;
 box-shadow:0 2px 10px rgba(0,0,0,0.1);
 }
 
-h1,h2{
-margin-bottom:15px;
-}
-
-input,select{
-padding:10px;
-margin:5px;
-border-radius:8px;
+input{
+width:100%;
+padding:12px;
+margin-top:10px;
 border:1px solid #ccc;
+border-radius:8px;
 }
 
 button{
-padding:10px 15px;
+width:100%;
+padding:12px;
+margin-top:15px;
 background:#2563eb;
 color:white;
 border:none;
 border-radius:8px;
 cursor:pointer;
-margin:5px;
-}
-
-.calendar{
-display:grid;
-grid-template-columns:repeat(7,1fr);
-gap:10px;
-margin-top:20px;
-}
-
-.day{
-background:#ddd;
-padding:15px;
-text-align:center;
-border-radius:10px;
-cursor:pointer;
-font-weight:bold;
-}
-
-.present{
-background:#2563eb;
-color:white;
-}
-
-.absent{
-background:#dc2626;
-color:white;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:20px;
-}
-
-table th,
-table td{
-border:1px solid #ccc;
-padding:10px;
-text-align:center;
-}
-
-th{
-background:#111827;
-color:white;
+font-size:16px;
 }
 
 .hidden{
 display:none;
-}
-
-@media(max-width:768px){
-
-.calendar{
-grid-template-columns:repeat(4,1fr);
-}
-
-input,select{
-width:90%;
-}
-
-table{
-font-size:12px;
-}
-
 }
 
 </style>
@@ -118,178 +54,41 @@ font-size:12px;
 
 <body>
 
-<!-- LOGIN PAGE -->
-
 <div class="card" id="loginPage">
 
 <h1>Login</h1>
 
-<input type="text" id="loginUsername" placeholder="Username">
+<input
+type="text"
+id="loginUsername"
+placeholder="Username"
+>
 
-<input type="password" id="loginPassword" placeholder="Password">
+<input
+type="password"
+id="loginPassword"
+placeholder="Password"
+>
 
-<br>
-
-<button onclick="login()">Login</button>
-
-</div>
-
-<!-- MAIN PAGE -->
-
-<div id="mainPage" class="hidden">
-
-<div class="card">
-
-<h1 id="titleText">Salary Management System</h1>
-
-<select id="language" onchange="changeLanguage()">
-
-<option value="en">English</option>
-
-<option value="mm">မြန်မာ</option>
-
-</select>
-
-<input type="number" id="year" value="2026">
-
-<select id="month">
-
-<option>January</option>
-<option>February</option>
-<option>March</option>
-<option>April</option>
-<option>May</option>
-<option>June</option>
-<option>July</option>
-<option>August</option>
-<option>September</option>
-<option>October</option>
-<option>November</option>
-<option>December</option>
-
-</select>
-
-<button onclick="openSettings()">⚙ Settings</button>
+<button onclick="login()">
+Login
+</button>
 
 </div>
 
-<div class="card">
+<div class="card hidden" id="mainPage">
 
-<h2 id="employeeText">Employee</h2>
+<h1>
+Login Success ✅
+</h1>
 
-<select id="employeeSelect" onchange="loadEmployee()">
-
-<option value="Zin Wai Min">Zin Wai Min</option>
-
-<option value="Khom">Khom</option>
-
-<option value="Zin Min Thu">Zin Min Thu</option>
-
-</select>
-
-<input type="number" id="dailySalary" value="500">
-
-</div>
-
-<div class="card">
-
-<h2 id="attendanceText">Attendance</h2>
-
-<p>Blue = Present | Red = Absent</p>
-
-<div class="calendar" id="calendar"></div>
-
-<br>
-
-<p id="presentLabel">
-Present : <span id="presentCount">0</span>
+<p>
+Salary Website Ready
 </p>
-
-<p id="absentLabel">
-Absent : <span id="absentCount">0</span>
-</p>
-
-<p id="salaryLabel">
-Salary : <span id="salaryTotal">0</span>
-</p>
-
-</div>
-
-<div class="card">
-
-<h2 id="expenseText">Expenses</h2>
-
-<input type="number" id="room" placeholder="Room Rent">
-
-<input type="number" id="food" placeholder="Food">
-
-<input type="number" id="bike" placeholder="Bike">
-
-<input type="number" id="fuel" placeholder="Fuel">
-
-<input type="number" id="debt" placeholder="Debt">
-
-<input type="number" id="home" placeholder="Home Money">
-
-</div>
-
-<div class="card">
-
-<h2 id="listText">Employee List</h2>
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>Name</th>
-<th>Present</th>
-<th>Absent</th>
-<th>Daily</th>
-<th>Salary</th>
-<th>Room</th>
-<th>Food</th>
-<th>Bike</th>
-<th>Fuel</th>
-<th>Debt</th>
-<th>Home</th>
-<th>Final</th>
-
-</tr>
-
-</thead>
-
-<tbody id="tableBody"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
-<!-- SETTINGS -->
-
-<div class="card hidden" id="settingsPage">
-
-<h1>Settings</h1>
-
-<input type="text" id="newUsername" placeholder="New Username">
-
-<input type="password" id="newPassword" placeholder="New Password">
-
-<br>
-
-<button onclick="saveSettings()">Save</button>
-
-<button onclick="closeSettings()">Back</button>
 
 </div>
 
 <script>
-
-let savedUsername = "admin";
-let savedPassword = "1234";
 
 function login(){
 
@@ -299,8 +98,8 @@ document.getElementById("loginUsername").value;
 let password =
 document.getElementById("loginPassword").value;
 
-if(username === savedUsername &&
-password === savedPassword){
+if(username === "admin" &&
+password === "1234"){
 
 document.getElementById("loginPage")
 .classList.add("hidden");
@@ -318,191 +117,7 @@ alert("Wrong Username or Password");
 
 }
 
-function openSettings(){
+</script>
 
-document.getElementById("mainPage")
-.classList.add("hidden");
-
-document.getElementById("settingsPage")
-.classList.remove("hidden");
-
-}
-
-function closeSettings(){
-
-document.getElementById("settingsPage")
-.classList.add("hidden");
-
-document.getElementById("mainPage")
-.classList.remove("hidden");
-
-}
-
-function saveSettings(){
-
-savedUsername =
-document.getElementById("newUsername").value;
-
-savedPassword =
-document.getElementById("newPassword").value;
-
-alert("Settings Saved");
-
-}
-
-let employees = {
-
-"Zin Wai Min": createEmployee(),
-
-"Khom": createEmployee(),
-
-"Zin Min Thu": createEmployee()
-
-};
-
-function createEmployee(){
-
-return{
-
-present:0,
-absent:0,
-days:{},
-
-room:0,
-food:0,
-bike:0,
-fuel:0,
-debt:0,
-home:0
-
-};
-
-}
-
-const calendar =
-document.getElementById("calendar");
-
-for(let i=1;i<=31;i++){
-
-let day =
-document.createElement("div");
-
-day.classList.add("day");
-
-day.innerText = i;
-
-day.onclick = function(){
-
-let name =
-document.getElementById("employeeSelect").value;
-
-let emp = employees[name];
-
-if(day.classList.contains("present")){
-
-day.classList.remove("present");
-
-day.classList.add("absent");
-
-emp.present--;
-emp.absent++;
-
-emp.days[i] = "absent";
-
-}
-
-else if(day.classList.contains("absent")){
-
-day.classList.remove("absent");
-
-emp.absent--;
-
-delete emp.days[i];
-
-}
-
-else{
-
-day.classList.add("present");
-
-emp.present++;
-
-emp.days[i] = "present";
-
-}
-
-updateEmployee();
-
-};
-
-calendar.appendChild(day);
-
-}
-
-function loadEmployee(){
-
-let name =
-document.getElementById("employeeSelect").value;
-
-let emp = employees[name];
-
-document.querySelectorAll(".day")
-.forEach((day,index)=>{
-
-day.classList.remove("present");
-day.classList.remove("absent");
-
-if(emp.days[index+1] === "present"){
-
-day.classList.add("present");
-
-}
-
-if(emp.days[index+1] === "absent"){
-
-day.classList.add("absent");
-
-}
-
-});
-
-document.getElementById("room").value =
-emp.room || "";
-
-document.getElementById("food").value =
-emp.food || "";
-
-document.getElementById("bike").value =
-emp.bike || "";
-
-document.getElementById("fuel").value =
-emp.fuel || "";
-
-document.getElementById("debt").value =
-emp.debt || "";
-
-document.getElementById("home").value =
-emp.home || "";
-
-updateEmployee();
-
-}
-
-function updateEmployee(){
-
-let name =
-document.getElementById("employeeSelect").value;
-
-let emp = employees[name];
-
-emp.room =
-Number(document.getElementById("room").value || 0);
-
-emp.food =
-Number(document.getElementById("food").value || 0);
-
-emp.bike =
-Number(document.getElementById("bike").value || 0);
-
-emp.fuel =
-Num
+</body>
+</html>
