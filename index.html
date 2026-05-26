@@ -6,15 +6,16 @@
 <title>Salary System</title>
 
 <style>
+
 body{
-    font-family: Arial;
     margin:0;
     padding:0;
-    background:#f2f2f2;
+    font-family:Arial;
+    background:#f1f5f9;
 }
 
 .container{
-    max-width:1200px;
+    max-width:1400px;
     margin:auto;
     padding:20px;
 }
@@ -30,7 +31,7 @@ body{
 input,select,button{
     padding:10px;
     margin:5px;
-    border-radius:8px;
+    border-radius:10px;
     border:1px solid #ccc;
 }
 
@@ -58,7 +59,7 @@ th,td{
 }
 
 th{
-    background:#1e293b;
+    background:#0f172a;
     color:white;
 }
 
@@ -68,9 +69,9 @@ th{
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    border-radius:10px;
-    background:#ddd;
     margin:4px;
+    border-radius:10px;
+    background:#d1d5db;
     cursor:pointer;
     font-weight:bold;
 }
@@ -93,6 +94,7 @@ th{
     display:flex;
     justify-content:space-between;
     align-items:center;
+    flex-wrap:wrap;
 }
 
 </style>
@@ -101,17 +103,18 @@ th{
 <body>
 
 <!-- LOGIN PAGE -->
+
 <div id="loginPage" class="container">
 
 <div class="card" style="max-width:400px;margin:auto;margin-top:100px;">
 
-<h2>Login</h2>
+<h2 id="loginTitle">Login</h2>
 
 <input type="text" id="username" placeholder="Username"><br>
 
 <input type="password" id="password" placeholder="Password"><br>
 
-<button onclick="login()">Login</button>
+<button onclick="login()" id="loginBtn">Login</button>
 
 <p id="loginMsg"></p>
 
@@ -120,53 +123,67 @@ th{
 </div>
 
 <!-- MAIN PAGE -->
+
 <div id="mainPage">
 
 <div class="container">
 
 <div class="topbar">
-<h2>Salary System</h2>
+
+<h2 id="mainTitle">Salary System</h2>
 
 <div>
+
 <select id="language" onchange="changeLanguage()">
+
 <option value="en">English</option>
+
 <option value="mm">မြန်မာ</option>
+
 </select>
 
-<button onclick="logout()">Logout</button>
+<button onclick="logout()" id="logoutBtn">Logout</button>
+
 </div>
+
 </div>
 
 <div class="card">
 
-<h3 id="titleText">Employee Data</h3>
+<h3 id="employeeText">Employee Data</h3>
 
 <input type="month" id="month">
 
 <select id="employee">
+
 <option>Zin Wai Min</option>
+
 <option>Khom</option>
+
 <option>Zin Min Thu</option>
+
 </select>
 
 <input type="number" id="dailySalary" placeholder="Daily Salary">
 
 <div id="calendar"></div>
 
-<p>
-Present :
+<h3>
+
+<span id="presentText">Present</span> :
 <span id="presentCount">0</span>
 
 |
 
-Absent :
+<span id="absentText">Absent</span> :
 <span id="absentCount">0</span>
 
 |
 
-Salary :
+<span id="salaryText">Salary</span> :
 <span id="salaryTotal">0</span>
-</p>
+
+</h3>
 
 <hr>
 
@@ -184,7 +201,7 @@ Salary :
 
 <br><br>
 
-<button onclick="saveData()">Save</button>
+<button onclick="saveData()" id="saveBtn">Save</button>
 
 </div>
 
@@ -193,19 +210,21 @@ Salary :
 <thead>
 
 <tr>
-<th>Name</th>
-<th>Month</th>
-<th>Present</th>
-<th>Absent</th>
-<th>Salary</th>
-<th>Room</th>
-<th>Food</th>
-<th>Bike</th>
-<th>Fuel</th>
-<th>Debt</th>
-<th>Home</th>
-<th>Final Salary</th>
-<th>Action</th>
+
+<th id="thName">Name</th>
+<th id="thMonth">Month</th>
+<th id="thPresent">Present</th>
+<th id="thAbsent">Absent</th>
+<th id="thSalary">Salary</th>
+<th id="thRoom">Room</th>
+<th id="thFood">Food</th>
+<th id="thBike">Bike</th>
+<th id="thFuel">Fuel</th>
+<th id="thDebt">Debt</th>
+<th id="thHome">Home</th>
+<th id="thFinal">Final Salary</th>
+<th id="thAction">Action</th>
+
 </tr>
 
 </thead>
@@ -335,45 +354,71 @@ let debt = Number(document.getElementById("debt").value || 0);
 
 let home = Number(document.getElementById("home").value || 0);
 
-let finalSalary = salary - room - food - bike - fuel - debt - home;
+let finalSalary =
+salary - room - food - bike - fuel - debt - home;
 
 let table = document.getElementById("tableBody");
+
+let rows = table.getElementsByTagName("tr");
+
+let found = false;
+
+for(let i=0; i<rows.length; i++){
+
+let rowName = rows[i].cells[0].innerText;
+
+if(rowName === name){
+
+rows[i].cells[1].innerText = month;
+rows[i].cells[2].innerText = present;
+rows[i].cells[3].innerText = absent;
+rows[i].cells[4].innerText = salary;
+rows[i].cells[5].innerText = room;
+rows[i].cells[6].innerText = food;
+rows[i].cells[7].innerText = bike;
+rows[i].cells[8].innerText = fuel;
+rows[i].cells[9].innerText = debt;
+rows[i].cells[10].innerText = home;
+rows[i].cells[11].innerText = finalSalary;
+
+found = true;
+
+break;
+
+}
+
+}
+
+if(!found){
 
 table.innerHTML += `
 
 <tr>
 
 <td>${name}</td>
-
 <td>${month}</td>
-
 <td>${present}</td>
-
 <td>${absent}</td>
-
 <td>${salary}</td>
-
 <td>${room}</td>
-
 <td>${food}</td>
-
 <td>${bike}</td>
-
 <td>${fuel}</td>
-
 <td>${debt}</td>
-
 <td>${home}</td>
-
 <td>${finalSalary}</td>
 
 <td>
+
 <button onclick="deleteRow(this)">Delete</button>
+
 </td>
 
 </tr>
 
 `;
+
+}
 
 document.getElementById("room").value = "";
 document.getElementById("food").value = "";
@@ -386,27 +431,4 @@ document.getElementById("home").value = "";
 
 function deleteRow(btn){
 
-btn.parentElement.parentElement.remove();
-
-}
-
-function changeLanguage(){
-
-let lang = document.getElementById("language").value;
-
-if(lang === "mm"){
-
-document.getElementById("titleText").innerText = "ဝန်ထမ်းအချက်အလက်";
-
-}else{
-
-document.getElementById("titleText").innerText = "Employee Data";
-
-}
-
-}
-
-</script>
-
-</body>
-</html>
+btn.parentElement.parentEl
