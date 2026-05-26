@@ -1,42 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Salary Website</title>
+
+<style>
+
+body{
+font-family:sans-serif;
+background:#f1f5f9;
+padding:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:15px;
+margin-bottom:20px;
+}
+
+.calendar{
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:10px;
+}
+
+.day{
+background:#ddd;
+padding:15px;
+text-align:center;
+border-radius:10px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.present{
+background:blue;
+color:white;
+}
+
+.absent{
+background:red;
+color:white;
+}
+
+input{
+padding:10px;
+margin:5px;
+}
+
+button{
+padding:10px;
+margin:5px;
+cursor:pointer;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+table th,table td{
+border:1px solid #ccc;
+padding:10px;
+text-align:center;
+}
+
+th{
+background:black;
+color:white;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>ဝန်ထမ်းလစာတွက်ရန်</h1>
+
+<p>အပြာ = အလုပ်ဆင်း</p>
+<p>အနီ = ပျက်</p>
+
+<div class="calendar" id="calendar"></div>
+
+<br>
+
+<p>ဆင်းရက် : <span id="presentCount">0</span></p>
+
+<p>ပျက်ရက် : <span id="absentCount">0</span></p>
+
+<p>လစာ : <span id="salaryTotal">0</span> ကျပ်</p>
+
+</div>
+
+<div class="card">
+
+<input type="text" id="name" placeholder="အမည်">
+
+<input type="number" id="room" placeholder="အခန်းခ">
+
+<input type="number" id="food" placeholder="စားစရိတ်">
+
+<input type="number" id="bike" placeholder="ဆိုင်ကယ်ဖိုး">
+
+<input type="number" id="fuel" placeholder="ဆီဖိုး">
+
+<input type="number" id="debt" placeholder="အကြွေး">
+
+<input type="number" id="home" placeholder="အိမ်ပေးငွေ">
+
+<br>
+
+<button onclick="saveData()">Save</button>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>အမည်</th>
+
+<th>ဆင်းရက်</th>
+
+<th>ပျက်ရက်</th>
+
+<th>လစာ</th>
+
+<th>အသုံးစရိတ်</th>
+
+<th>ကျန်ငွေ</th>
+
+<th>လုပ်ရန်</th>
+
+</tr>
+
+</thead>
+
+<tbody id="tableBody"></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+let present = 0;
+
+let absent = 0;
+
+let dailySalary = 500;
+
+const calendar = document.getElementById("calendar");
+
+for(let i=1;i<=30;i++){
+
+let day = document.createElement("div");
+
+day.classList.add("day");
+
+day.innerText = i;
+
+day.onclick = function(){
+
+if(day.classList.contains("present")){
+
+day.classList.remove("present");
+
+day.classList.add("absent");
+
+present--;
+
+absent++;
+
+}
+
+else if(day.classList.contains("absent")){
+
+day.classList.remove("absent");
+
+absent--;
+
+}
+
+else{
+
+day.classList.add("present");
+
+present++;
+
+}
+
+updateData();
+
+}
+
+calendar.appendChild(day);
+
+}
+
+function updateData(){
+
+document.getElementById("presentCount").innerText = present;
+
+document.getElementById("absentCount").innerText = absent;
+
+document.getElementById("salaryTotal").innerText = present * dailySalary;
+
+}
+
+function saveData(){
+
+let name = document.getElementById("name").value;
+
+let room = Number(document.getElementById("room").value || 0);
+
+let food = Number(document.getElementById("food").value || 0);
+
+let bike = Number(document.getElementById("bike").value || 0);
+
+let fuel = Number(document.getElementById("fuel").value || 0);
+
+let debt = Number(document.getElementById("debt").value || 0);
+
+let home = Number(document.getElementById("home").value || 0);
+
+let salary = present * dailySalary;
+
 let expense = room + food + bike + fuel + debt + home;
 
-    let finalSalary = salary - expense;
+let finalSalary = salary - expense;
 
-    let row = `
-    <tr>
-    <td>${name}</td>
-    <td>${present}</td>
-    <td>${absent}</td>
-    <td>${salary}</td>
-    <td>${expense}</td>
-    <td>${finalSalary}</td>
+let row = `
+<tr>
 
-    <td>
-    <button class="editBtn" onclick="editRow(this)">Edit</button>
+<td>${name}</td>
 
-    <button class="deleteBtn" onclick="deleteRow(this)">Delete</button>
-    </td>
+<td>${present}</td>
 
-    </tr>
-    `;
+<td>${absent}</td>
 
-    document.getElementById("tableBody").innerHTML += row;
+<td>${salary}</td>
+
+<td>${expense}</td>
+
+<td>${finalSalary}</td>
+
+<td>
+
+<button onclick="editRow(this)">Edit</button>
+
+<button onclick="deleteRow(this)">Delete</button>
+
+</td>
+
+</tr>
+`;
+
+document.getElementById("tableBody").innerHTML += row;
+
 }
 
 function deleteRow(btn){
 
-    btn.parentElement.parentElement.remove();
+btn.parentElement.parentElement.remove();
+
 }
 
 function editRow(btn){
 
-    let row = btn.parentElement.parentElement;
+let row = btn.parentElement.parentElement;
 
-    let name = row.cells[0].innerText;
+document.getElementById("name").value = row.cells[0].innerText;
 
-    document.getElementById("name").value = name;
+row.remove();
 
-    row.remove();
 }
 
 </script>
