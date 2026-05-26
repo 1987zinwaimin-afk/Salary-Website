@@ -1,233 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Salary Website</title>
-
-<style>
-body{
-font-family: Arial;
-background:#f2f2f2;
-padding:20px;
-}
-
-.container{
-background:white;
-padding:20px;
-border-radius:10px;
-margin-bottom:20px;
-}
-
-input{
-padding:10px;
-margin:5px;
-width:150px;
-}
-
-button{
-padding:10px 15px;
-border:none;
-border-radius:5px;
-cursor:pointer;
-}
-
-.addBtn{
-background:blue;
-color:white;
-}
-
-.editBtn{
-background:orange;
-color:white;
-}
-
-.deleteBtn{
-background:red;
-color:white;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-background:white;
-}
-
-table th,
-table td{
-border:1px solid #ccc;
-padding:10px;
-text-align:center;
-}
-
-th{
-background:#222;
-color:white;
-}
-</style>
-
-</head>
-<body>
-
-<div class="container">
-
-<h2>ဝန်ထမ်းလစာစာရင်း</h2>
-
-<input type="date" id="date">
-<input type="text" id="name" placeholder="နာမည်">
-<input type="number" id="salary" placeholder="လစာ">
-<input type="number" id="room" placeholder="အခန်းခ">
-<input type="number" id="food" placeholder="စားစရိတ်">
-<input type="number" id="fuel" placeholder="ဆီဖိုး">
-<input type="number" id="bike" placeholder="ဆိုင်ကယ်ဖိုး">
-<input type="number" id="debt" placeholder="အကြွေး">
-
-<button class="addBtn" onclick="addEmployee()">Add Employee</button>
-
-</div>
-
-<table>
-
-<thead>
-<tr>
-<th>နေ့စွဲ</th>
-<th>နာမည်</th>
-<th>လစာ</th>
-<th>အခန်းခ</th>
-<th>စားစရိတ်</th>
-<th>ဆီဖိုး</th>
-<th>ဆိုင်ကယ်ဖိုး</th>
-<th>အကြွေး</th>
-<th>ကျန်ငွေ</th>
-<th>လုပ်ဆောင်ရန်</th>
-</tr>
-</thead>
-
-<tbody id="tableBody"></tbody>
-
-</table>
-
-<script>
-
-function addEmployee(){
-
-const date = document.getElementById("date").value;
-const name = document.getElementById("name").value;
-
-const salary = Number(document.getElementById("salary").value || 0);
-const room = Number(document.getElementById("room").value || 0);
-const food = Number(document.getElementById("food").value || 0);
-const fuel = Number(document.getElementById("fuel").value || 0);
-const bike = Number(document.getElementById("bike").value || 0);
-const debt = Number(document.getElementById("debt").value || 0);
-
-const remain =
-salary - room - food - fuel - bike - debt;
-
-const tableBody = document.getElementById("tableBody");
-
-tableBody.innerHTML += `
-<tr>
-<td>${date}</td>
-<td>${name}</td>
-<td>${salary}</td>
-<td>${room}</td>
-<td>${food}</td>
-<td>${fuel}</td>
-<td>${bike}</td>
-<td>${debt}</td>
-<td>${remain}</td>
-
-<td>
-<button class="editBtn" onclick="editRow(this)">Edit</button>
-
-<button class="deleteBtn" onclick="deleteRow(this)">Delete</button>
-</td>
-
-</tr>
-`;
-
-}
-
-function deleteRow(btn){
-btn.parentElement.parentElement.remove();
-}
-
-function editRow(btn){
-
-const row = btn.parentElement.parentElement;
-const cells = row.getElementsByTagName("td");
-
-document.getElementById("date").value = cells[0].innerText;
-document.getElementById("name").value = cells[1].innerText;
-document.getElementById("salary").value = cells[2].innerText;
-document.getElementById("room").value = cells[3].innerText;
-document.getElementById("food").value = cells[4].innerText;
-document.getElementById("fuel").value = cells[5].innerText;
-document.getElementById("bike").value = cells[6].innerText;
-document.getElementById("debt").value = cells[7].innerText;
-
-row.remove();
-
-}
-
-</script>
-<h2>Attendance</h2>
-
-<div id="calendar"></div>
-
-<h3>
-အလုပ်ဆင်းရက်: <span id="presentCount">0</span>
-</h3>
-
-<h3>
-ပျက်ရက်: <span id="absentCount">0</span>
-</h3>
-
-<h3>
-ရမည့်လစာ: <span id="salaryTotal">0</span> Ks
-</h3>
-
-<style>
-
-#calendar{
-display:grid;
-grid-template-columns:repeat(5,80px);
-gap:10px;
-margin-top:20px;
-}
-
-.day{
-padding:20px;
-background:#ddd;
-text-align:center;
-border-radius:10px;
-cursor:pointer;
-font-weight:bold;
-}
-
-.present{
-background:blue;
-color:white;
-}
-
-.absent{
-background:red;
-color:white;
-}
-
-</style>
-
-<script>
-
-const calendar = document.getElementById("calendar");
-
-let present = 0;
-let absent = 0;
-
-for(let i=1; i<=30; i++){
-
-const day = document.createElement("div");
+createElement("div");
 
 day.classList.add("day");
 
@@ -238,12 +9,14 @@ day.onclick = function(){
 if(day.classList.contains("present")){
 
 day.classList.remove("present");
+
 day.classList.add("absent");
 
 present--;
 absent++;
 
 }
+
 else if(day.classList.contains("absent")){
 
 day.classList.remove("absent");
@@ -251,6 +24,7 @@ day.classList.remove("absent");
 absent--;
 
 }
+
 else{
 
 day.classList.add("present");
@@ -269,9 +43,11 @@ calendar.appendChild(day);
 
 function updateData(){
 
-document.getElementById("presentCount").innerText = present;
+document.getElementById("presentCount").innerText =
+present;
 
-document.getElementById("absentCount").innerText = absent;
+document.getElementById("absentCount").innerText =
+absent;
 
 document.getElementById("salaryTotal").innerText =
 present * 500;
@@ -279,5 +55,6 @@ present * 500;
 }
 
 </script>
+
 </body>
 </html>
