@@ -260,8 +260,7 @@ let p=document.getElementById("password").value;
 
 if(u===savedUser && p===savedPass){
 
-document.getElementById("loginPage").style.display="none";
-document.getElementById("mainPage").style.display="block";
+document.getElementById("loginPage").style.display="none";document.getElementById("mainPage").style.display="block";
 
 loadEmployee();
 
@@ -449,4 +448,47 @@ document.getElementById("logoPreview").src=savedLogo;
 
 function changeLanguage(){
 
-let lang=docu
+let lang=document.getElementById("language").value;
+
+if(lang==="mm"){
+
+document.getElementById("title").innerText="လစာစနစ်";
+document.getElementById("attendanceText").innerText="အလုပ်ဆင်းရက်";
+document.getElementById("nameText").innerText="အမည်";
+document.getElementById("presentText").innerText="ဆင်း";
+document.getElementById("absentText").innerText="ပျက်";
+document.getElementById("salaryText").innerText="လစာ";
+document.getElementById("roomText").innerText="အခန်းခ";
+document.getElementById("foodText").innerText="စားစရိတ်";
+document.getElementById("debtText").innerText="အကြွေး";
+document.getElementById("fuelText").innerText="ဆီဖိုး";
+document.getElementById("otherText").innerText="အသုံးစရိတ်";
+document.getElementById("finalText").innerText="ကျန်ငွေ";
+document.getElementById("settingText").innerText="ဆက်တင်";
+
+}else{
+
+document.getElementById("title").innerText="Salary System";
+document.getElementById("attendanceText").innerText="Attendance";
+document.getElementById("nameText").innerText="Name";
+document.getElementById("presentText").innerText="Present";
+document.getElementById("absentText").innerText="Absent";
+document.getElementById("salaryText").innerText="Salary";
+document.getElementById("roomText").innerText="Room";
+document.getElementById("foodText").innerText="Food";
+document.getElementById("debtText").innerText="Debt";
+document.getElementById("fuelText").innerText="Fuel";
+document.getElementById("otherText").innerText="Other";
+document.getElementById("finalText").innerText="Final";
+document.getElementById("settingText").innerText="Settings";
+
+}
+
+}
+
+renderTable();
+
+</script>
+
+</body>
+</html>
