@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Salary Website</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      color: #111827;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    input {
+      padding: 10px;
+      margin: 5px;
+      width: 200px;
+    }
+    button {
+      padding: 10px 20px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+    }
+    th {
+      background: #111827;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h1>ဝန်ထမ်းလစာစာရင်း</h1>
+  <p>လစာ Cycle : 25 ရက်နေ့မှ နောက်လ 25 ရက်နေ့အထိ</p>
+</div>
+
+<div class="card">
+  <h2>ဝန်ထမ်းအသစ်ထည့်ရန်</h2>
+  <input type="date" id="date">
+  <input type="text" id="name" placeholder="အမည်">
+  <input type="number" id="salary" placeholder="လစာ">
+  <input type="number" id="room" placeholder="အခန်းခ">
+  <input type="number" id="food" placeholder="စားစရိတ်">
+  <input type="number" id="fuel" placeholder="ဆိုင်ကယ်ဆီဖိုး">
+  <input type="number" id="bike" placeholder="ဆိုင်ကယ်ဖိုးသွင်းငွေ">
+  <input type="number" id="debt" placeholder="အကြွေးဆပ်ငွေ">
+  <input type="number" id="home" placeholder="အိမ်ပို့ငွေ">
+  <input type="text" id="note" placeholder="မှတ်ချက်">
+  <br><br>
+  <button onclick="addEmployee()">Add Employee</button>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>နေ့စွဲ</th>
+      <th>အမည်</th>
+      <th>လစာ</th>
+      <th>အခန်းခ</th>
+      <th>စားစရိတ်</th>
+      <th>ဆိုင်ကယ်ဆီဖိုး</th>
+      <th>ဆိုင်ကယ်ဖိုးသွင်းငွေ</th>
+      <th>အကြွေးဆပ်ငွေ</th>
+      <th>အိမ်ပို့ငွေ</th>
+      <th>လစာကျန်ငွေ</th>
+      <th>မှတ်ချက်</th>
+    </tr>
+  </thead>
+  <tbody id="tableBody"></tbody>
+</table>
+
+<script>
+function addEmployee() {
+  const salary = Number(document.getElementById('salary').value || 0);
+  const room = Number(document.getElementById('room').value || 0);
+  const food = Number(document.getElementById('food').value || 0);
+  const fuel = Number(document.getElementById('fuel').value || 0);
+  const bike = Number(document.getElementById('bike').value || 0);
+  const debt = Number(document.getElementById('debt').value || 0);
+  const home = Number(document.getElementById('home').value || 0);
+
+  const remain = salary - room - food - fuel - bike - debt - home;
+
+  const row = `
+    <tr>
+      <td>${document.getElementById('date').value}</td>
+      <td>${document.getElementById('name').value}</td>
+      <td>${salary}</td>
+      <td>${room}</td>
+      <td>${food}</td>
+      <td>${fuel}</td>
+      <td>${bike}</td>
+      <td>${debt}</td>
+      <td>${home}</td>
+      <td>${remain}</td>
+      <td>${document.getElementById('note').value}</td>
+    </tr>
+  `;
+
+  document.getElementById('tableBody').innerHTML += row;
+}
+</script>
+
+</body>
+</html>
