@@ -1,51 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Salary System</title>
+<title>Login</title>
 
 <style>
 
 body{
 font-family:Arial;
 background:#f1f5f9;
-padding:20px;
+padding:50px;
 }
 
-.card{
+.box{
 background:white;
 padding:20px;
-border-radius:15px;
-max-width:400px;
+max-width:300px;
 margin:auto;
-margin-top:100px;
-box-shadow:0 2px 10px rgba(0,0,0,0.1);
+border-radius:10px;
 }
 
 input{
 width:100%;
-padding:12px;
+padding:10px;
 margin-top:10px;
-border:1px solid #ccc;
-border-radius:8px;
 }
 
 button{
 width:100%;
-padding:12px;
-margin-top:15px;
-background:#2563eb;
+padding:10px;
+margin-top:10px;
+background:blue;
 color:white;
 border:none;
-border-radius:8px;
-cursor:pointer;
-font-size:16px;
-}
-
-.hidden{
-display:none;
 }
 
 </style>
@@ -54,37 +40,15 @@ display:none;
 
 <body>
 
-<div class="card" id="loginPage">
+<div class="box">
 
-<h1>Login</h1>
+<h2>Login</h2>
 
-<input
-type="text"
-id="loginUsername"
-placeholder="Username"
->
+<input type="text" id="user" placeholder="Username">
 
-<input
-type="password"
-id="loginPassword"
-placeholder="Password"
->
+<input type="password" id="pass" placeholder="Password">
 
-<button onclick="login()">
-Login
-</button>
-
-</div>
-
-<div class="card hidden" id="mainPage">
-
-<h1>
-Login Success ✅
-</h1>
-
-<p>
-Salary Website Ready
-</p>
+<button onclick="login()">Login</button>
 
 </div>
 
@@ -92,23 +56,17 @@ Salary Website Ready
 
 function login(){
 
-let username =
-document.getElementById("loginUsername").value;
+var u =
+document.getElementById("user").value;
 
-let password =
-document.getElementById("loginPassword").value;
+var p =
+document.getElementById("pass").value;
 
-if(username === "admin" &&
-password === "1234"){
+if(u=="admin" && p=="1234"){
 
-document.getElementById("loginPage")
-.classList.add("hidden");
-
-document.getElementById("mainPage")
-.classList.remove("hidden");
+alert("Login Success");
 
 }
-
 else{
 
 alert("Wrong Username or Password");
