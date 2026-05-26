@@ -1,77 +1,102 @@
 <!DOCTYPE html>
-<html>
+<html lang="my">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Salary Website</title>
 
 <style>
 
 body{
-font-family:sans-serif;
-background:#f1f5f9;
-padding:20px;
+    font-family:sans-serif;
+    background:#f1f5f9;
+    padding:20px;
+}
+
+.container{
+    max-width:1200px;
+    margin:auto;
 }
 
 .card{
-background:white;
-padding:20px;
-border-radius:15px;
-margin-bottom:20px;
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:20px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+h1,h2{
+    margin-bottom:15px;
 }
 
 .calendar{
-display:grid;
-grid-template-columns:repeat(7,1fr);
-gap:10px;
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:10px;
+    margin-top:20px;
 }
 
 .day{
-background:#ddd;
-padding:15px;
-text-align:center;
-border-radius:10px;
-cursor:pointer;
-font-weight:bold;
+    padding:15px;
+    text-align:center;
+    background:#ddd;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.2s;
 }
 
 .present{
-background:blue;
-color:white;
+    background:#2563eb;
+    color:white;
 }
 
 .absent{
-background:red;
-color:white;
+    background:#dc2626;
+    color:white;
 }
 
 input{
-padding:10px;
-margin:5px;
-}
-
-button{
-padding:10px;
-margin:5px;
-cursor:pointer;
+    padding:10px;
+    margin:5px;
+    border-radius:8px;
+    border:1px solid #ccc;
 }
 
 table{
-width:100%;
-border-collapse:collapse;
-margin-top:20px;
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
 }
 
 table th,table td{
-border:1px solid #ccc;
-padding:10px;
-text-align:center;
+    border:1px solid #ccc;
+    padding:10px;
+    text-align:center;
 }
 
 th{
-background:black;
-color:white;
+    background:#111827;
+    color:white;
+}
+
+.summary{
+    margin-top:20px;
+    font-size:18px;
+    line-height:35px;
+}
+
+@media(max-width:768px){
+
+.calendar{
+    grid-template-columns:repeat(4,1fr);
+}
+
+input{
+    width:90%;
+}
+
 }
 
 </style>
@@ -79,6 +104,8 @@ color:white;
 </head>
 
 <body>
+
+<div class="container">
 
 <div class="card">
 
@@ -89,17 +116,21 @@ color:white;
 
 <div class="calendar" id="calendar"></div>
 
-<br>
+<div class="summary">
 
 <p>ဆင်းရက် : <span id="presentCount">0</span></p>
 
 <p>ပျက်ရက် : <span id="absentCount">0</span></p>
 
-<p>လစာ : <span id="salaryTotal">0</span> ကျပ်</p>
+<p>စုစုပေါင်းလစာ : <span id="salaryTotal">0</span> ကျပ်</p>
+
+</div>
 
 </div>
 
 <div class="card">
+
+<h2>အသုံးစရိတ်</h2>
 
 <input type="text" id="name" placeholder="အမည်">
 
@@ -115,173 +146,147 @@ color:white;
 
 <input type="number" id="home" placeholder="အိမ်ပေးငွေ">
 
-<br>
-
-<button onclick="saveData()">Save</button>
-
 <table>
 
 <thead>
 
 <tr>
-
 <th>အမည်</th>
-
 <th>ဆင်းရက်</th>
-
 <th>ပျက်ရက်</th>
-
 <th>လစာ</th>
-
 <th>အသုံးစရိတ်</th>
-
 <th>ကျန်ငွေ</th>
-
-<th>လုပ်ရန်</th>
-
 </tr>
 
 </thead>
 
-<tbody id="tableBody"></tbody>
+<tbody id="tableBody">
+
+<tr>
+
+<td id="tbName"></td>
+
+<td id="tbPresent">0</td>
+
+<td id="tbAbsent">0</td>
+
+<td id="tbSalary">0</td>
+
+<td id="tbExpense">0</td>
+
+<td id="tbFinal">0</td>
+
+</tr>
+
+</tbody>
 
 </table>
+
+</div>
 
 </div>
 
 <script>
 
 let present = 0;
-
 let absent = 0;
 
-let dailySalary = 500;
+const dailySalary = 500;
 
 const calendar = document.getElementById("calendar");
 
 for(let i=1;i<=30;i++){
 
-let day = document.createElement("div");
+    let day = document.createElement("div");
 
-day.classList.add("day");
+    day.classList.add("day");
 
-day.innerText = i;
+    day.innerText = i;
 
-day.onclick = function(){
+    day.onclick = function(){
 
-if(day.classList.contains("present")){
+        if(day.classList.contains("present")){
 
-day.classList.remove("present");
+            day.classList.remove("present");
 
-day.classList.add("absent");
+            day.classList.add("absent");
 
-present--;
+            present--;
+            absent++;
 
-absent++;
+        }
 
-}
+        else if(day.classList.contains("absent")){
 
-else if(day.classList.contains("absent")){
+            day.classList.remove("absent");
 
-day.classList.remove("absent");
+            absent--;
 
-absent--;
+        }
 
-}
+        else{
 
-else{
+            day.classList.add("present");
 
-day.classList.add("present");
+            present++;
 
-present++;
+        }
 
-}
+        updateData();
 
-updateData();
+    }
 
-}
-
-calendar.appendChild(day);
+    calendar.appendChild(day);
 
 }
 
 function updateData(){
 
-document.getElementById("presentCount").innerText = present;
+    let salary = present * dailySalary;
 
-document.getElementById("absentCount").innerText = absent;
+    let room = Number(document.getElementById("room").value || 0);
 
-document.getElementById("salaryTotal").innerText = present * dailySalary;
+    let food = Number(document.getElementById("food").value || 0);
 
-}
+    let bike = Number(document.getElementById("bike").value || 0);
 
-function saveData(){
+    let fuel = Number(document.getElementById("fuel").value || 0);
 
-let name = document.getElementById("name").value;
+    let debt = Number(document.getElementById("debt").value || 0);
 
-let room = Number(document.getElementById("room").value || 0);
+    let home = Number(document.getElementById("home").value || 0);
 
-let food = Number(document.getElementById("food").value || 0);
+    let expense = room + food + bike + fuel + debt + home;
 
-let bike = Number(document.getElementById("bike").value || 0);
+    let finalSalary = salary - expense;
 
-let fuel = Number(document.getElementById("fuel").value || 0);
+    document.getElementById("presentCount").innerText = present;
 
-let debt = Number(document.getElementById("debt").value || 0);
+    document.getElementById("absentCount").innerText = absent;
 
-let home = Number(document.getElementById("home").value || 0);
+    document.getElementById("salaryTotal").innerText = salary;
 
-let salary = present * dailySalary;
+    document.getElementById("tbName").innerText =
+    document.getElementById("name").value;
 
-let expense = room + food + bike + fuel + debt + home;
+    document.getElementById("tbPresent").innerText = present;
 
-let finalSalary = salary - expense;
+    document.getElementById("tbAbsent").innerText = absent;
 
-let row = `
-<tr>
+    document.getElementById("tbSalary").innerText = salary;
 
-<td>${name}</td>
+    document.getElementById("tbExpense").innerText = expense;
 
-<td>${present}</td>
-
-<td>${absent}</td>
-
-<td>${salary}</td>
-
-<td>${expense}</td>
-
-<td>${finalSalary}</td>
-
-<td>
-
-<button onclick="editRow(this)">Edit</button>
-
-<button onclick="deleteRow(this)">Delete</button>
-
-</td>
-
-</tr>
-`;
-
-document.getElementById("tableBody").innerHTML += row;
+    document.getElementById("tbFinal").innerText = finalSalary;
 
 }
 
-function deleteRow(btn){
+document.querySelectorAll("input").forEach(input=>{
 
-btn.parentElement.parentElement.remove();
+    input.addEventListener("input",updateData);
 
-}
-
-function editRow(btn){
-
-let row = btn.parentElement.parentElement;
-
-document.getElementById("name").value = row.cells[0].innerText;
-
-row.remove();
-
-}
+});
 
 </script>
 
