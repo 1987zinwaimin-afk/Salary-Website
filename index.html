@@ -56,6 +56,16 @@ background:#1d4ed8;
 display:none;
 }
 
+.logo{
+width:120px;
+height:120px;
+border-radius:20px;
+object-fit:cover;
+display:block;
+margin:auto;
+margin-bottom:20px;
+}
+
 .calendar{
 display:grid;
 grid-template-columns:repeat(7,1fr);
@@ -100,16 +110,6 @@ background:#111827;
 color:white;
 }
 
-.logo{
-width:120px;
-height:120px;
-border-radius:20px;
-object-fit:cover;
-display:block;
-margin:auto;
-margin-bottom:20px;
-}
-
 .topbar{
 display:flex;
 justify-content:space-between;
@@ -118,7 +118,6 @@ flex-wrap:wrap;
 }
 
 </style>
-
 </head>
 
 <body>
@@ -155,7 +154,7 @@ placeholder="Password"
 required
 >
 
-<button type="submit" id="loginBtn">
+<button type="submit">
 Login
 </button>
 
@@ -169,6 +168,8 @@ Login
 
 <div class="container hidden" id="mainPage">
 
+<!-- TOP -->
+
 <div class="card">
 
 <div class="topbar">
@@ -179,8 +180,7 @@ Salary System
 
 <div>
 
-<select id="language"
-onchange="changeLanguage()">
+<select id="language">
 
 <option value="en">
 English
@@ -370,57 +370,19 @@ Final Salary
 
 <tr>
 
-<th id="thName">
-Name
-</th>
-
-<th id="thPresent">
-Present
-</th>
-
-<th id="thAbsent">
-Absent
-</th>
-
-<th id="thSalary">
-Salary
-</th>
-
-<th id="thRoom">
-Room
-</th>
-
-<th id="thFood">
-Food
-</th>
-
-<th id="thBike">
-Bike
-</th>
-
-<th id="thFuel">
-Fuel
-</th>
-
-<th id="thDebt">
-Debt
-</th>
-
-<th id="thHome">
-Home
-</th>
-
-<th id="thOther">
-Other
-</th>
-
-<th id="thFinal">
-Final
-</th>
-
-<th id="thAction">
-Action
-</th>
+<th id="thName">Name</th>
+<th id="thPresent">Present</th>
+<th id="thAbsent">Absent</th>
+<th id="thSalary">Salary</th>
+<th id="thRoom">Room</th>
+<th id="thFood">Food</th>
+<th id="thBike">Bike</th>
+<th id="thFuel">Fuel</th>
+<th id="thDebt">Debt</th>
+<th id="thHome">Home</th>
+<th id="thOther">Other</th>
+<th id="thFinal">Final</th>
+<th id="thAction">Action</th>
 
 </tr>
 
@@ -633,4 +595,7 @@ let home =
 Number(document.getElementById("home").value || 0);
 
 let other =
-Number(document.getElem
+Number(document.getElementById("other").value || 0);
+
+let finalSalary =
+salary - room - fo
