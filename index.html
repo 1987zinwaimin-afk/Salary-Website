@@ -1,57 +1,132 @@
-createElement("div");
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salary Website</title>
 
-day.classList.add("day");
-
-day.innerText = i;
-
-day.onclick = function(){
-
-if(day.classList.contains("present")){
-
-day.classList.remove("present");
-
-day.classList.add("absent");
-
-present--;
-absent++;
-
+<style>
+body{
+    font-family: Arial;
+    background:#f0f2f5;
+    padding:20px;
 }
 
-else if(day.classList.contains("absent")){
-
-day.classList.remove("absent");
-
-absent--;
-
+.container{
+    max-width:900px;
+    margin:auto;
 }
 
-else{
-
-day.classList.add("present");
-
-present++;
-
+h1{
+    text-align:center;
 }
 
-updateData();
+.calendar{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:10px;
+    margin-top:20px;
+}
 
-};
+.day{
+    background:white;
+    padding:20px;
+    text-align:center;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+    border:2px solid #ddd;
+}
 
-calendar.appendChild(day);
+.present{
+    background:#2196f3;
+    color:white;
+}
 
+.absent{
+    background:#f44336;
+    color:white;
+}
+
+.result{
+    margin-top:30px;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>ဝန်ထမ်း Attendance</h1>
+
+<h2>နေ့စား = 500 Ks</h2>
+
+<div class="calendar" id="calendar"></div>
+
+<div class="result">
+    <h3>ဆင်းရက် : <span id="presentCount">0</span></h3>
+    <h3>ပျက်ရက် : <span id="absentCount">0</span></h3>
+    <h2>စုစုပေါင်းလစာ : <span id="salaryTotal">0</span> Ks</h2>
+</div>
+
+</div>
+
+<script>
+
+let present = 0;
+let absent = 0;
+
+const calendar = document.getElementById("calendar");
+
+for(let i=1;i<=30;i++){
+
+    let day = document.createElement("div");
+
+    day.classList.add("day");
+
+    day.innerText = i;
+
+    day.onclick = function(){
+
+        if(day.classList.contains("present")){
+
+            day.classList.remove("present");
+            day.classList.add("absent");
+
+            present--;
+            absent++;
+
+        }else if(day.classList.contains("absent")){
+
+            day.classList.remove("absent");
+
+            absent--;
+
+        }else{
+
+            day.classList.add("present");
+
+            present++;
+        }
+
+        updateData();
+    };
+
+    calendar.appendChild(day);
 }
 
 function updateData(){
 
-document.getElementById("presentCount").innerText =
-present;
+    document.getElementById("presentCount").innerText = present;
 
-document.getElementById("absentCount").innerText =
-absent;
+    document.getElementById("absentCount").innerText = absent;
 
-document.getElementById("salaryTotal").innerText =
-present * 500;
-
+    document.getElementById("salaryTotal").innerText = present * 500;
 }
 
 </script>
