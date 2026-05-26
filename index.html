@@ -1,319 +1,4 @@
-}
-
-};
-
-function saveEmployees(){
-
-localStorage.setItem(
-"employees",
-JSON.stringify(employees)
-);
-
-}
-
-function currentEmployee(){
-
-return document.getElementById("employee").value;
-
-}
-
-/* CALENDAR */
-
-function loadEmployee(){
-
-createCalendar();
-
-renderTable();
-
-}
-
-function createCalendar(){
-
-let calendar=
-document.getElementById("calendar");
-
-calendar.innerHTML="";
-
-let emp=currentEmployee();
-
-for(let i=1;i<=31;i++){
-
-let day=document.createElement("div");
-
-day.className="day";
-
-day.innerText=i;
-
-if(employees[emp].days.includes(i)){
-
-day.classList.add("present");
-
-}
-
-day.onclick=function(){
-
-let index=
-employees[emp].days.indexOf(i);
-
-if(index>-1){
-
-employees[emp].days.splice(index,1);
-
-}else{
-
-employees[emp].days.push(i);
-
-}
-
-saveEmployees();
-
-createCalendar();
-
-renderTable();
-
-};
-
-calendar.appendChild(day);
-
-}
-
-}
-
-/* TABLE */
-
-function renderTable(){
-
-let body=
-document.getElementById("tableBody");
-
-body.innerHTML="";
-
-for(let name in employees){
-
-let e=employees[name];
-
-let present=e.days.length;
-
-let absent=31-present;
-
-let salary=
-present*e.salaryPerDay;
-
-let final=
-salary-
-e.room-
-e.food-
-e.debt-
-e.fuel-
-e.other;
-
-body.innerHTML+=`
-
-<tr>
-
-<td>${name}</td>
-
-<td>${present}</td>
-
-<td>${absent}</td>
-
-<td contenteditable
-oninput="editData('${name}','salaryPerDay',this.innerText)">
-${e.salaryPerDay}
-</td>
-
-<td contenteditable
-oninput="editData('${name}','room',this.innerText)">
-${e.room}
-</td>
-
-<td contenteditable
-oninput="editData('${name}','food',this.innerText)">
-${e.food}
-</td>
-
-<td contenteditable
-oninput="editData('${name}','debt',this.innerText)">
-${e.debt}
-</td>
-
-<td contenteditable
-oninput="editData('${name}','fuel',this.innerText)">
-${e.fuel}
-</td>
-
-<td contenteditable
-oninput="editData('${name}','other',this.innerText)">
-${e.other}
-</td>
-
-<td>${final}</td>
-
-</tr>
-
-`;
-
-}
-
-}
-
-/* EDIT DATA */
-
-function editData(name,key,value){
-
-employees[name][key]=
-Number(value)||0;
-
-saveEmployees();
-
-renderTable();
-
-}
-
-/* SETTINGS */
-
-function saveSettings(){
-
-let newUser=
-document.getElementById("newUser").value;
-
-let newPass=
-document.getElementById("newPass").value;
-
-let newLogo=
-document.getElementById("newLogo").value;
-
-if(newUser){
-
-localStorage.setItem(
-"username",
-newUser
-);
-
-savedUser=newUser;
-
-}
-
-if(newPass){
-
-localStorage.setItem(
-"password",
-newPass
-);
-
-savedPass=newPass;
-
-}
-
-if(newLogo){
-
-localStorage.setItem(
-"logo",
-newLogo
-);
-
-document.getElementById("logoImage")
-.src=newLogo;
-
-}
-
-alert("Saved");
-
-}
-
-/* LOGO */
-
-let savedLogo=
-localStorage.getItem("logo");
-
-if(savedLogo){
-
-document.getElementById("logoImage")
-.src=savedLogo;
-
-}
-
-/* LANGUAGE */
-
-function changeLanguage(){
-
-let lang=
-document.getElementById("language").value;
-
-if(lang==="en"){
-
-document.getElementById("titleText")
-.innerText="Salary System";
-
-document.getElementById("attendanceText")
-.innerText="Attendance";
-
-document.getElementById("nameText")
-.innerText="Name";
-
-document.getElementById("presentText")
-.innerText="Present";
-
-document.getElementById("absentText")
-.innerText="Absent";
-
-document.getElementById("salaryText")
-.innerText="Salary";
-
-document.getElementById("roomText")
-.innerText="Room";
-
-document.getElementById("foodText")
-.innerText="Food";
-
-document.getElementById("debtText")
-.innerText="Debt";
-
-document.getElementById("fuelText")
-.innerText="Fuel";
-
-document.getElementById("otherText")
-.innerText="Other";
-
-document.getElementById("finalText")
-.innerText="Final";
-
-}else{
-
-document.getElementById("titleText")
-.innerText="လစာစနစ်";
-
-document.getElementById("attendanceText")
-.innerText="အလုပ်ဆင်းရက်";
-
-document.getElementById("nameText")
-.innerText="အမည်";
-
-document.getElementById("presentText")
-.innerText="ဆင်း";
-
-document.getElementById("absentText")
-.innerText="ပျက်";
-
-document.getElementById("salaryText")
-.innerText="လစာ";
-
-document.getElementById("roomText")
-.innerText="အခန်းခ";
-
-document.getElementById("foodText")
-.innerText="စားစရိတ်";
-
-document.getElementById("debtText")
-.innerText="အကြွေး";
-
-document.getElementById("fuelText")
-.innerText="ဆီဖိုး";
-
-document.getElementById("otherText")
-.innerText="အသုံးစရိတ်";
-
-document.<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -321,82 +6,50 @@ document.<!DOCTYPE html>
 <title>Salary System</title>
 
 <style>
-
 body{
-margin:0;
 font-family:Arial;
-background:#f1f5f9;
+background:#f2f5ff;
+margin:0;
+padding:0;
 }
 
-/* LOGIN */
-
-#loginPage{
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-}
-
-.loginBox{
-background:white;
-padding:30px;
-width:320px;
-border-radius:15px;
-box-shadow:0 0 10px rgba(0,0,0,0.2);
-text-align:center;
-}
-
-.loginBox img{
-width:120px;
-height:120px;
-object-fit:cover;
-margin-bottom:10px;
-}
-
-input,select{
-width:100%;
-padding:10px;
-margin-top:10px;
-border-radius:8px;
-border:1px solid #ccc;
-box-sizing:border-box;
-}
-
-button{
-padding:10px;
-border:none;
-border-radius:8px;
-background:#2563eb;
-color:white;
-cursor:pointer;
-margin-top:10px;
-}
-
-/* MAIN */
-
-#mainPage{
-display:none;
+.login-box,.app{
+max-width:1200px;
+margin:auto;
 padding:20px;
 }
 
-.top{
-display:flex;
-justify-content:space-between;
-align-items:center;
-flex-wrap:wrap;
-gap:10px;
+.card{
+background:white;
+padding:20px;
+border-radius:15px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+input,select,button{
+padding:10px;
+margin:5px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+button{
+background:#2563eb;
+color:white;
+border:none;
+cursor:pointer;
 }
 
 .calendar{
 display:grid;
 grid-template-columns:repeat(7,1fr);
-gap:8px;
+gap:10px;
 margin-top:20px;
 }
 
 .day{
+padding:20px;
 background:white;
-padding:15px;
 text-align:center;
 border-radius:10px;
 cursor:pointer;
@@ -408,213 +61,144 @@ background:#2563eb;
 color:white;
 }
 
+.absent{
+background:red;
+color:white;
+}
+
 table{
 width:100%;
-border-collapse:collapse;
 margin-top:20px;
+border-collapse:collapse;
 background:white;
 }
 
-th,td{
+table th,table td{
 border:1px solid #ddd;
 padding:10px;
 text-align:center;
 }
 
-.settings{
-background:white;
-padding:20px;
-border-radius:15px;
-margin-top:20px;
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+flex-wrap:wrap;
+gap:10px;
 }
 
-@media(max-width:700px){
-
-.calendar{
-grid-template-columns:repeat(4,1fr);
+.hidden{
+display:none;
 }
 
+.logo{
+width:80px;
+height:80px;
+border-radius:50%;
+object-fit:cover;
+display:block;
+margin:auto;
 }
-
 </style>
 </head>
 
 <body>
 
 <!-- LOGIN -->
+<div class="login-box" id="loginPage">
+<div class="card" style="max-width:350px;margin:auto;margin-top:50px;text-align:center;">
 
-<div id="loginPage">
+<img id="logoImage" class="logo" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
 
-<div class="loginBox">
+<h2 id="loginTitle">Login</h2>
 
-<img id="logoImage"
-src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+<input type="text" id="username" placeholder="Username"><br>
+<input type="password" id="password" placeholder="Password"><br>
 
-<h2>Login</h2>
-
-<input type="text"
-id="username"
-placeholder="Username">
-
-<input type="password"
-id="password"
-placeholder="Password">
-
-<button onclick="login()">
-Login
-</button>
+<button onclick="login()">Login</button>
 
 </div>
-
 </div>
 
-<!-- MAIN -->
+<!-- APP -->
+<div class="app hidden" id="appPage">
 
-<div id="mainPage">
-
-<div class="top">
+<div class="topbar">
 
 <div>
-
-<h2 id="titleText">
-လစာစနစ်
-</h2>
+<h2 id="titleText">Salary System</h2>
 
 <select id="language" onchange="changeLanguage()">
-
-<option value="mm">
-မြန်မာ
-</option>
-
-<option value="en">
-English
-</option>
-
+<option value="en">English</option>
+<option value="mm">မြန်မာ</option>
 </select>
-
 </div>
 
 <div>
-
 <select id="employee" onchange="loadEmployee()">
-
-<option>
-Zin Wai Min
-</option>
-
-<option>
-Khom
-</option>
-
-<option>
-Zin Min Thu
-</option>
-
+<option>Zin Wai Min</option>
+<option>Zin Min Thu</option>
+<option>Khom</option>
 </select>
 
-<select>
-
-<option>
-January 2026
-</option>
-
-<option>
-February 2026
-</option>
-
-<option>
-March 2026
-</option>
-
+<select id="month">
+<option>January 2026</option>
+<option>February 2026</option>
+<option>March 2026</option>
 </select>
-
 </div>
 
 </div>
-
-<h3 id="attendanceText">
-အလုပ်ဆင်းရက်
-</h3>
 
 <div class="calendar" id="calendar"></div>
 
 <table>
-
 <thead>
-
 <tr>
-
-<th id="nameText">
-အမည်
-</th>
-
-<th id="presentText">
-ဆင်း
-</th>
-
-<th id="absentText">
-ပျက်
-</th>
-
-<th id="salaryText">
-လစာ
-</th>
-
-<th id="roomText">
-အခန်းခ
-</th>
-
-<th id="foodText">
-စားစရိတ်
-</th>
-
-<th id="debtText">
-အကြွေး
-</th>
-
-<th id="fuelText">
-ဆီဖိုး
-</th>
-
-<th id="otherText">
-အသုံးစရိတ်
-</th>
-
-<th id="finalText">
-ကျန်ငွေ
-</th>
-
+<th id="nameText">Name</th>
+<th id="presentText">Present</th>
+<th id="absentText">Absent</th>
+<th id="salaryText">Salary</th>
+<th id="roomText">Room</th>
+<th id="foodText">Food</th>
+<th id="debtText">Debt</th>
+<th id="fuelText">Fuel</th>
+<th id="otherText">Other</th>
+<th id="finalText">Final</th>
+<th>Edit</th>
+<th>Delete</th>
 </tr>
-
 </thead>
 
 <tbody id="tableBody"></tbody>
-
 </table>
 
-<!-- SETTINGS -->
+<br>
 
-<div class="settings">
+<div class="card">
 
-<h3>
-Settings
-</h3>
+<input type="number" id="room" placeholder="Room">
+<input type="number" id="food" placeholder="Food">
+<input type="number" id="debt" placeholder="Debt">
+<input type="number" id="fuel" placeholder="Fuel">
+<input type="number" id="other" placeholder="Other">
 
-<input type="text"
-id="newUser"
-placeholder="New Username">
+<button onclick="updateData()">Update</button>
 
-<input type="password"
-id="newPass"
-placeholder="New Password">
+</div>
 
-<input type="text"
-id="newLogo"
-placeholder="Logo Image URL">
+<br>
 
-<button onclick="saveSettings()">
-Save Settings
-</button>
+<div class="card">
+
+<h3>Settings</h3>
+
+<input type="text" id="newUser" placeholder="New Username">
+<input type="password" id="newPass" placeholder="New Password">
+
+<input type="text" id="newLogo" placeholder="Logo Image URL">
+
+<button onclick="saveSettings()">Save Settings</button>
 
 </div>
 
@@ -622,78 +206,255 @@ Save Settings
 
 <script>
 
-/* LOGIN */
+let users = JSON.parse(localStorage.getItem("users")) || {
+username:"admin",
+password:"1234"
+};
 
-let savedUser=
-localStorage.getItem("username")
-|| "admin";
-
-let savedPass=
-localStorage.getItem("password")
-|| "1234";
+let employees = JSON.parse(localStorage.getItem("employees")) || {};
 
 function login(){
 
-let user=
-document.getElementById("username").value;
+let u=document.getElementById("username").value;
+let p=document.getElementById("password").value;
 
-let pass=
-document.getElementById("password").value;
+if(u===users.username && p===users.password){
 
-if(user===savedUser &&
-pass===savedPass){
+document.getElementById("loginPage").classList.add("hidden");
+document.getElementById("appPage").classList.remove("hidden");
 
-document.getElementById("loginPage")
-.style.display="none";
-
-document.getElementById("mainPage")
-.style.display="block";
-
+createCalendar();
 loadEmployee();
 
 }else{
-
 alert("Wrong Username or Password");
-
 }
 
 }
 
-/* EMPLOYEES */
+function currentEmployee(){
+return document.getElementById("employee").value;
+}
 
-let employees=
-JSON.parse(localStorage.getItem("employees"))
-|| {
+function createCalendar(){
 
-"Zin Wai Min":{
+let calendar=document.getElementById("calendar");
+calendar.innerHTML="";
+
+let emp=currentEmployee();
+
+if(!employees[emp]){
+employees[emp]={
 days:[],
-salaryPerDay:500,
 room:0,
 food:0,
 debt:0,
 fuel:0,
 other:0
-},
+};
+}
 
-"Khom":{
+for(let i=1;i<=31;i++){
+
+let day=document.createElement("div");
+day.className="day";
+day.innerText=i;
+
+if(employees[emp].days.includes(i)){
+day.classList.add("present");
+}
+
+day.onclick=function(){
+
+let index=employees[emp].days.indexOf(i);
+
+if(index>-1){
+employees[emp].days.splice(index,1);
+day.classList.remove("present");
+}else{
+employees[emp].days.push(i);
+day.classList.add("present");
+}
+
+saveEmployees();
+renderTable();
+};
+
+calendar.appendChild(day);
+}
+
+}
+
+function renderTable(){
+
+let emp=currentEmployee();
+
+let data=employees[emp];
+
+let present=data.days.length;
+let absent=31-present;
+
+let salary=present*500;
+
+let finalSalary=
+salary-
+data.room-
+data.food-
+data.debt-
+data.fuel-
+data.other;
+
+document.getElementById("tableBody").innerHTML=`
+<tr>
+<td>${emp}</td>
+<td>${present}</td>
+<td>${absent}</td>
+<td>${salary}</td>
+<td>${data.room}</td>
+<td>${data.food}</td>
+<td>${data.debt}</td>
+<td>${data.fuel}</td>
+<td>${data.other}</td>
+<td>${finalSalary}</td>
+
+<td>
+<button onclick="editData()">Edit</button>
+</td>
+
+<td>
+<button onclick="deleteData()">Delete</button>
+</td>
+
+</tr>
+`;
+
+}
+
+function updateData(){
+
+let emp=currentEmployee();
+
+employees[emp].room=Number(document.getElementById("room").value)||0;
+employees[emp].food=Number(document.getElementById("food").value)||0;
+employees[emp].debt=Number(document.getElementById("debt").value)||0;
+employees[emp].fuel=Number(document.getElementById("fuel").value)||0;
+employees[emp].other=Number(document.getElementById("other").value)||0;
+
+saveEmployees();
+
+document.getElementById("room").value="";
+document.getElementById("food").value="";
+document.getElementById("debt").value="";
+document.getElementById("fuel").value="";
+document.getElementById("other").value="";
+
+renderTable();
+
+}
+
+function editData(){
+
+let emp=currentEmployee();
+
+document.getElementById("room").value=employees[emp].room;
+document.getElementById("food").value=employees[emp].food;
+document.getElementById("debt").value=employees[emp].debt;
+document.getElementById("fuel").value=employees[emp].fuel;
+document.getElementById("other").value=employees[emp].other;
+
+}
+
+function deleteData(){
+
+let emp=currentEmployee();
+
+employees[emp]={
 days:[],
-salaryPerDay:700,
 room:0,
 food:0,
 debt:0,
 fuel:0,
 other:0
-},
+};
 
-"Zin Min Thu":{
-days:[],
-salaryPerDay:1000,
-room:0,
-food:0,
-debt:0,
-fuel:0,
-other:0getElementById("finalText")
-.innerText="ကျန်ငွေ";
+saveEmployees();
+
+createCalendar();
+renderTable();
+
+}
+
+function saveEmployees(){
+localStorage.setItem("employees",JSON.stringify(employees));
+}
+
+function loadEmployee(){
+createCalendar();
+renderTable();
+}
+
+function saveSettings(){
+
+let newUser=document.getElementById("newUser").value;
+let newPass=document.getElementById("newPass").value;
+let newLogo=document.getElementById("newLogo").value;
+
+if(newUser){
+users.username=newUser;
+}
+
+if(newPass){
+users.password=newPass;
+}
+
+localStorage.setItem("users",JSON.stringify(users));
+
+if(newLogo){
+localStorage.setItem("logo",newLogo);
+document.getElementById("logoImage").src=newLogo;
+}
+
+alert("Saved");
+
+}
+
+let savedLogo=localStorage.getItem("logo");
+
+if(savedLogo){
+document.getElementById("logoImage").src=savedLogo;
+}
+
+function changeLanguage(){
+
+let lang=document.getElementById("language").value;
+
+if(lang==="en"){
+
+document.getElementById("titleText").innerText="Salary System";
+document.getElementById("nameText").innerText="Name";
+document.getElementById("presentText").innerText="Present";
+document.getElementById("absentText").innerText="Absent";
+document.getElementById("salaryText").innerText="Salary";
+document.getElementById("roomText").innerText="Room";
+document.getElementById("foodText").innerText="Food";
+document.getElementById("debtText").innerText="Debt";
+document.getElementById("fuelText").innerText="Fuel";
+document.getElementById("otherText").innerText="Other";
+document.getElementById("finalText").innerText="Final";
+
+}else{
+
+document.getElementById("titleText").innerText="လစာစနစ်";
+document.getElementById("nameText").innerText="အမည်";
+document.getElementById("presentText").innerText="ဆင်း";
+document.getElementById("absentText").innerText="ပျက်";
+document.getElementById("salaryText").innerText="လစာ";
+document.getElementById("roomText").innerText="အခန်းခ";
+document.getElementById("foodText").innerText="စားစရိတ်";
+document.getElementById("debtText").innerText="အကြွေး";
+document.getElementById("fuelText").innerText="ဆီဖိုး";
+document.getElementById("otherText").innerText="အသုံးစရိတ်";
+document.getElementById("finalText").innerText="ကျန်ငွေ";
 
 }
 
