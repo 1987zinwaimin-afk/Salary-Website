@@ -1,4 +1,319 @@
-<!DOCTYPE html>
+}
+
+};
+
+function saveEmployees(){
+
+localStorage.setItem(
+"employees",
+JSON.stringify(employees)
+);
+
+}
+
+function currentEmployee(){
+
+return document.getElementById("employee").value;
+
+}
+
+/* CALENDAR */
+
+function loadEmployee(){
+
+createCalendar();
+
+renderTable();
+
+}
+
+function createCalendar(){
+
+let calendar=
+document.getElementById("calendar");
+
+calendar.innerHTML="";
+
+let emp=currentEmployee();
+
+for(let i=1;i<=31;i++){
+
+let day=document.createElement("div");
+
+day.className="day";
+
+day.innerText=i;
+
+if(employees[emp].days.includes(i)){
+
+day.classList.add("present");
+
+}
+
+day.onclick=function(){
+
+let index=
+employees[emp].days.indexOf(i);
+
+if(index>-1){
+
+employees[emp].days.splice(index,1);
+
+}else{
+
+employees[emp].days.push(i);
+
+}
+
+saveEmployees();
+
+createCalendar();
+
+renderTable();
+
+};
+
+calendar.appendChild(day);
+
+}
+
+}
+
+/* TABLE */
+
+function renderTable(){
+
+let body=
+document.getElementById("tableBody");
+
+body.innerHTML="";
+
+for(let name in employees){
+
+let e=employees[name];
+
+let present=e.days.length;
+
+let absent=31-present;
+
+let salary=
+present*e.salaryPerDay;
+
+let final=
+salary-
+e.room-
+e.food-
+e.debt-
+e.fuel-
+e.other;
+
+body.innerHTML+=`
+
+<tr>
+
+<td>${name}</td>
+
+<td>${present}</td>
+
+<td>${absent}</td>
+
+<td contenteditable
+oninput="editData('${name}','salaryPerDay',this.innerText)">
+${e.salaryPerDay}
+</td>
+
+<td contenteditable
+oninput="editData('${name}','room',this.innerText)">
+${e.room}
+</td>
+
+<td contenteditable
+oninput="editData('${name}','food',this.innerText)">
+${e.food}
+</td>
+
+<td contenteditable
+oninput="editData('${name}','debt',this.innerText)">
+${e.debt}
+</td>
+
+<td contenteditable
+oninput="editData('${name}','fuel',this.innerText)">
+${e.fuel}
+</td>
+
+<td contenteditable
+oninput="editData('${name}','other',this.innerText)">
+${e.other}
+</td>
+
+<td>${final}</td>
+
+</tr>
+
+`;
+
+}
+
+}
+
+/* EDIT DATA */
+
+function editData(name,key,value){
+
+employees[name][key]=
+Number(value)||0;
+
+saveEmployees();
+
+renderTable();
+
+}
+
+/* SETTINGS */
+
+function saveSettings(){
+
+let newUser=
+document.getElementById("newUser").value;
+
+let newPass=
+document.getElementById("newPass").value;
+
+let newLogo=
+document.getElementById("newLogo").value;
+
+if(newUser){
+
+localStorage.setItem(
+"username",
+newUser
+);
+
+savedUser=newUser;
+
+}
+
+if(newPass){
+
+localStorage.setItem(
+"password",
+newPass
+);
+
+savedPass=newPass;
+
+}
+
+if(newLogo){
+
+localStorage.setItem(
+"logo",
+newLogo
+);
+
+document.getElementById("logoImage")
+.src=newLogo;
+
+}
+
+alert("Saved");
+
+}
+
+/* LOGO */
+
+let savedLogo=
+localStorage.getItem("logo");
+
+if(savedLogo){
+
+document.getElementById("logoImage")
+.src=savedLogo;
+
+}
+
+/* LANGUAGE */
+
+function changeLanguage(){
+
+let lang=
+document.getElementById("language").value;
+
+if(lang==="en"){
+
+document.getElementById("titleText")
+.innerText="Salary System";
+
+document.getElementById("attendanceText")
+.innerText="Attendance";
+
+document.getElementById("nameText")
+.innerText="Name";
+
+document.getElementById("presentText")
+.innerText="Present";
+
+document.getElementById("absentText")
+.innerText="Absent";
+
+document.getElementById("salaryText")
+.innerText="Salary";
+
+document.getElementById("roomText")
+.innerText="Room";
+
+document.getElementById("foodText")
+.innerText="Food";
+
+document.getElementById("debtText")
+.innerText="Debt";
+
+document.getElementById("fuelText")
+.innerText="Fuel";
+
+document.getElementById("otherText")
+.innerText="Other";
+
+document.getElementById("finalText")
+.innerText="Final";
+
+}else{
+
+document.getElementById("titleText")
+.innerText="လစာစနစ်";
+
+document.getElementById("attendanceText")
+.innerText="အလုပ်ဆင်းရက်";
+
+document.getElementById("nameText")
+.innerText="အမည်";
+
+document.getElementById("presentText")
+.innerText="ဆင်း";
+
+document.getElementById("absentText")
+.innerText="ပျက်";
+
+document.getElementById("salaryText")
+.innerText="လစာ";
+
+document.getElementById("roomText")
+.innerText="အခန်းခ";
+
+document.getElementById("foodText")
+.innerText="စားစရိတ်";
+
+document.getElementById("debtText")
+.innerText="အကြွေး";
+
+document.getElementById("fuelText")
+.innerText="ဆီဖိုး";
+
+document.getElementById("otherText")
+.innerText="အသုံးစရိတ်";
+
+document.<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -6,31 +321,35 @@
 <title>Salary System</title>
 
 <style>
+
 body{
-font-family:Arial;
 margin:0;
-padding:0;
+font-family:Arial;
 background:#f1f5f9;
 }
 
-.loginPage{
+/* LOGIN */
+
+#loginPage{
+height:100vh;
 display:flex;
 justify-content:center;
 align-items:center;
-height:100vh;
 }
 
 .loginBox{
 background:white;
 padding:30px;
-border-radius:15px;
 width:320px;
+border-radius:15px;
 box-shadow:0 0 10px rgba(0,0,0,0.2);
 text-align:center;
 }
 
 .loginBox img{
-width:100px;
+width:120px;
+height:120px;
+object-fit:cover;
 margin-bottom:10px;
 }
 
@@ -38,30 +357,32 @@ input,select{
 width:100%;
 padding:10px;
 margin-top:10px;
-border:1px solid #ccc;
 border-radius:8px;
+border:1px solid #ccc;
+box-sizing:border-box;
 }
 
 button{
 padding:10px;
 border:none;
 border-radius:8px;
-cursor:pointer;
 background:#2563eb;
 color:white;
+cursor:pointer;
 margin-top:10px;
 }
 
-.main{
+/* MAIN */
+
+#mainPage{
 display:none;
 padding:20px;
 }
 
-.topbar{
+.top{
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:20px;
 flex-wrap:wrap;
 gap:10px;
 }
@@ -70,12 +391,12 @@ gap:10px;
 display:grid;
 grid-template-columns:repeat(7,1fr);
 gap:8px;
-margin-top:15px;
+margin-top:20px;
 }
 
 .day{
-padding:12px;
 background:white;
+padding:15px;
 text-align:center;
 border-radius:10px;
 cursor:pointer;
@@ -84,11 +405,6 @@ font-weight:bold;
 
 .present{
 background:#2563eb;
-color:white;
-}
-
-.absent{
-background:red;
 color:white;
 }
 
@@ -107,109 +423,198 @@ text-align:center;
 
 .settings{
 background:white;
-padding:15px;
-border-radius:10px;
+padding:20px;
+border-radius:15px;
 margin-top:20px;
 }
 
 @media(max-width:700px){
+
 .calendar{
 grid-template-columns:repeat(4,1fr);
 }
+
 }
+
 </style>
 </head>
 
 <body>
 
-<div class="loginPage" id="loginPage">
+<!-- LOGIN -->
+
+<div id="loginPage">
+
 <div class="loginBox">
 
-<img id="logoPreview" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+<img id="logoImage"
+src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
 
-<h2 id="loginText">Login</h2>
+<h2>Login</h2>
 
-<input type="text" id="username" placeholder="Username">
-<input type="password" id="password" placeholder="Password">
+<input type="text"
+id="username"
+placeholder="Username">
 
-<button onclick="login()">Login</button>
+<input type="password"
+id="password"
+placeholder="Password">
+
+<button onclick="login()">
+Login
+</button>
 
 </div>
+
 </div>
 
-<div class="main" id="mainPage">
+<!-- MAIN -->
 
-<div class="topbar">
+<div id="mainPage">
+
+<div class="top">
 
 <div>
-<h2 id="title">Salary System</h2>
+
+<h2 id="titleText">
+လစာစနစ်
+</h2>
 
 <select id="language" onchange="changeLanguage()">
-<option value="en">English</option>
-<option value="mm">မြန်မာ</option>
+
+<option value="mm">
+မြန်မာ
+</option>
+
+<option value="en">
+English
+</option>
+
 </select>
+
 </div>
 
 <div>
+
 <select id="employee" onchange="loadEmployee()">
-<option>Zin Wai Min</option>
-<option>Khom</option>
-<option>Zin Min Thu</option>
+
+<option>
+Zin Wai Min
+</option>
+
+<option>
+Khom
+</option>
+
+<option>
+Zin Min Thu
+</option>
+
 </select>
 
-<select id="month">
-<option>January 2026</option>
-<option>February 2026</option>
-<option>March 2026</option>
-<option>April 2026</option>
-<option>May 2026</option>
-<option>June 2026</option>
-<option>July 2026</option>
-<option>August 2026</option>
-<option>September 2026</option>
-<option>October 2026</option>
-<option>November 2026</option>
-<option>December 2026</option>
+<select>
+
+<option>
+January 2026
+</option>
+
+<option>
+February 2026
+</option>
+
+<option>
+March 2026
+</option>
+
 </select>
+
 </div>
 
 </div>
 
-<h3 id="attendanceText">Attendance</h3>
+<h3 id="attendanceText">
+အလုပ်ဆင်းရက်
+</h3>
 
 <div class="calendar" id="calendar"></div>
 
 <table>
+
 <thead>
+
 <tr>
-<th id="nameText">Name</th>
-<th id="presentText">Present</th>
-<th id="absentText">Absent</th>
-<th id="salaryText">Salary</th>
-<th id="roomText">Room</th>
-<th id="foodText">Food</th>
-<th id="debtText">Debt</th>
-<th id="fuelText">Fuel</th>
-<th id="otherText">Other</th>
-<th id="finalText">Final</th>
-<th>Edit</th>
-<th>Delete</th>
+
+<th id="nameText">
+အမည်
+</th>
+
+<th id="presentText">
+ဆင်း
+</th>
+
+<th id="absentText">
+ပျက်
+</th>
+
+<th id="salaryText">
+လစာ
+</th>
+
+<th id="roomText">
+အခန်းခ
+</th>
+
+<th id="foodText">
+စားစရိတ်
+</th>
+
+<th id="debtText">
+အကြွေး
+</th>
+
+<th id="fuelText">
+ဆီဖိုး
+</th>
+
+<th id="otherText">
+အသုံးစရိတ်
+</th>
+
+<th id="finalText">
+ကျန်ငွေ
+</th>
+
 </tr>
+
 </thead>
 
 <tbody id="tableBody"></tbody>
+
 </table>
+
+<!-- SETTINGS -->
 
 <div class="settings">
 
-<h3 id="settingText">Settings</h3>
+<h3>
+Settings
+</h3>
 
-<input type="text" id="newUser" placeholder="New Username">
-<input type="password" id="newPass" placeholder="New Password">
+<input type="text"
+id="newUser"
+placeholder="New Username">
 
-<input type="text" id="logoInput" placeholder="Logo Image URL">
+<input type="password"
+id="newPass"
+placeholder="New Password">
 
-<button onclick="saveSettings()">Save Settings</button>
+<input type="text"
+id="newLogo"
+placeholder="Logo Image URL">
+
+<button onclick="saveSettings()">
+Save Settings
+</button>
 
 </div>
 
@@ -217,250 +622,82 @@ grid-template-columns:repeat(4,1fr);
 
 <script>
 
-let employees = JSON.parse(localStorage.getItem("employees")) || {
+/* LOGIN */
 
-"Zin Wai Min":{
-present:0,
-absent:0,
-salaryPerDay:500,
-salary:0,
-room:0,
-food:0,
-debt:0,
-fuel:0,
-other:0,
-days:[]
-},
+let savedUser=
+localStorage.getItem("username")
+|| "admin";
 
-"Khom":{
-present:0,
-absent:0,
-salaryPerDay:700,
-salary:0,
-room:0,
-food:0,
-debt:0,
-fuel:0,
-other:0,
-days:[]
-},
+let savedPass=
+localStorage.getItem("password")
+|| "1234";
 
-"Zin Min Thu":{
-present:0,
-absent:0,
-salaryPerDay:1000,
-salary:0,
-room:0,
-food:0,
-debt:0,
-fuel:0,
-other:0,
-days:[]
-}
+function login(){
 
-};
+let user=
+document.getElementById("username").value;
 
-function saveData(){
-localStorage.setItem("employees",JSON.stringify(employees));
-}
+let pass=
+document.getElementById("password").value;
 
-function currentEmployee(){
-return document.getElementById("employee").value;
-}
+if(user===savedUser &&
+pass===savedPass){
 
-function createCalendar(){
+document.getElementById("loginPage")
+.style.display="none";
 
-let calendar=document.getElementById("calendar");
-calendar.innerHTML="";
+document.getElementById("mainPage")
+.style.display="block";
 
-let emp=currentEmployee();
-
-for(let i=1;i<=31;i++){
-
-let day=document.createElement("div");
-day.className="day";
-day.innerText=i;
-
-if(employees[emp].days.includes(i)){
-day.classList.add("present");
-}
-
-day.onclick=function(){
-
-let index=employees[emp].days.indexOf(i);
-
-if(index>-1){
-
-employees[emp].days.splice(index,1);
+loadEmployee();
 
 }else{
 
-employees[emp].days.push(i);
-
-}
-
-updateEmployee(emp);
-
-createCalendar();
-
-};
-
-calendar.appendChild(day);
+alert("Wrong Username or Password");
 
 }
 
 }
 
-function updateEmployee(name){
+/* EMPLOYEES */
 
-let e=employees[name];
+let employees=
+JSON.parse(localStorage.getItem("employees"))
+|| {
 
-e.present=e.days.length;
+"Zin Wai Min":{
+days:[],
+salaryPerDay:500,
+room:0,
+food:0,
+debt:0,
+fuel:0,
+other:0
+},
 
-e.absent=31-e.present;
+"Khom":{
+days:[],
+salaryPerDay:700,
+room:0,
+food:0,
+debt:0,
+fuel:0,
+other:0
+},
 
-e.salary=e.present*e.salaryPerDay;
-
-saveData();
-
-renderTable();
-
-}
-
-function renderTable(){
-
-let body=document.getElementById("tableBody");
-
-body.innerHTML="";
-
-for(let name in employees){
-
-let e=employees[name];
-
-let final=
-e.salary-
-e.room-
-e.food-
-e.debt-
-e.fuel-
-e.other;
-
-body.innerHTML+=`
-
-<tr>
-
-<td>${name}</td>
-
-<td>${e.present}</td>
-
-<td>${e.absent}</td>
-
-<td contenteditable
-oninput="editValue('${name}','salaryPerDay',this.innerText)">
-${e.salaryPerDay}
-</td>
-
-<td contenteditable
-oninput="editValue('${name}','room',this.innerText)">
-${e.room}
-</td>
-
-<td contenteditable
-oninput="editValue('${name}','food',this.innerText)">
-${e.food}
-</td>
-
-<td contenteditable
-oninput="editValue('${name}','debt',this.innerText)">
-${e.debt}
-</td>
-
-<td contenteditable
-oninput="editValue('${name}','fuel',this.innerText)">
-${e.fuel}
-</td>
-
-<td contenteditable
-oninput="editValue('${name}','other',this.innerText)">
-${e.other}
-</td>
-
-<td>${final}</td>
-
-<td>
-<button onclick="editName('${name}')">
-Edit
-</button>
-</td>
-
-<td>
-<button onclick="deleteUser('${name}')">
-Delete
-</button>
-</td>
-
-</tr>
-
-`;
+"Zin Min Thu":{
+days:[],
+salaryPerDay:1000,
+room:0,
+food:0,
+debt:0,
+fuel:0,
+other:0getElementById("finalText")
+.innerText="ကျန်ငွေ";
 
 }
 
 }
-
-function editValue(name,key,value){
-
-employees[name][key]=Number(value)||0;
-
-updateEmployee(name);
-
-saveData();
-
-}
-
-function editName(oldName){
-
-let newName=prompt("New Name",oldName);
-
-if(newName){
-
-employees[newName]=employees[oldName];
-
-delete employees[oldName];
-
-saveData();
-
-renderTable();
-
-}
-
-}
-
-function deleteUser(name){
-
-if(confirm("Delete?")){
-
-delete employees[name];
-
-saveData();
-
-renderTable();
-
-}
-
-}
-
-document.getElementById("employee")
-.onchange=function(){
-
-createCalendar();
-
-renderTable();
-
-};
-
-createCalendar();
-
-renderTable();
 
 </script>
 
