@@ -6,32 +6,20 @@
 <title>Salary System</title>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial;
-}
 
 body{
-background:#f2f5ff;
+font-family:Arial;
+background:#f1f5f9;
 padding:20px;
 }
 
-.login-box,
-.main-box{
-max-width:1200px;
-margin:auto;
+.box{
 background:white;
 padding:20px;
 border-radius:15px;
+max-width:1200px;
+margin:auto;
 box-shadow:0 0 10px rgba(0,0,0,0.1);
-}
-
-h1{
-text-align:center;
-margin-bottom:20px;
-color:#1e3a8a;
 }
 
 input,select,button{
@@ -44,19 +32,8 @@ border:1px solid #ccc;
 button{
 background:#2563eb;
 color:white;
-cursor:pointer;
 border:none;
-}
-
-button:hover{
-background:#1d4ed8;
-}
-
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-gap:10px;
-margin-bottom:20px;
+cursor:pointer;
 }
 
 .calendar{
@@ -67,8 +44,8 @@ margin-top:20px;
 }
 
 .day{
+background:#ddd;
 padding:15px;
-background:#e5e7eb;
 text-align:center;
 border-radius:10px;
 cursor:pointer;
@@ -81,22 +58,14 @@ color:white;
 }
 
 .absent{
-background:#ef4444;
+background:red;
 color:white;
-}
-
-.summary{
-margin-top:20px;
-background:#f8fafc;
-padding:15px;
-border-radius:10px;
 }
 
 table{
 width:100%;
 border-collapse:collapse;
 margin-top:20px;
-background:white;
 }
 
 table th,table td{
@@ -105,28 +74,9 @@ padding:10px;
 text-align:center;
 }
 
-.action-btn{
-padding:5px 10px;
-border:none;
-border-radius:5px;
+th{
+background:#111827;
 color:white;
-cursor:pointer;
-}
-
-.edit{
-background:orange;
-}
-
-.delete{
-background:red;
-}
-
-.top-bar{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:20px;
-flex-wrap:wrap;
 }
 
 .hidden{
@@ -134,131 +84,104 @@ display:none;
 }
 
 </style>
+
 </head>
 
 <body>
 
 <!-- LOGIN -->
-<div class="login-box" id="loginPage">
 
-<h1 id="loginTitle">Login</h1>
+<div class="box" id="loginPage">
 
-<input type="text" id="username" placeholder="Username"><br>
-<input type="password" id="password" placeholder="Password"><br>
+<h1>Login</h1>
 
-<button onclick="login()" id="loginBtn">Login</button>
+<input type="text" id="username" placeholder="Username">
+
+<input type="password" id="password" placeholder="Password">
+
+<br>
+
+<button id="loginBtn">Login</button>
 
 </div>
 
 <!-- MAIN -->
-<div class="main-box hidden" id="mainPage">
 
-<div class="top-bar">
+<div class="box hidden" id="mainPage">
 
-<h1 id="mainTitle">Salary System</h1>
+<h1 id="titleText">Salary System</h1>
 
-<div>
+<select id="language">
 
-<select id="language" onchange="changeLanguage()">
 <option value="en">English</option>
+
 <option value="mm">မြန်မာ</option>
+
 </select>
-
-<select id="month">
-<option>January</option>
-<option>February</option>
-<option>March</option>
-<option>April</option>
-<option>May</option>
-<option>June</option>
-<option>July</option>
-<option>August</option>
-<option>September</option>
-<option>October</option>
-<option>November</option>
-<option>December</option>
-</select>
-
-<select id="year">
-<option>2025</option>
-<option>2026</option>
-<option>2027</option>
-<option>2028</option>
-</select>
-
-</div>
-
-</div>
-
-<!-- INPUT -->
-<div class="grid">
 
 <select id="employee">
+
 <option>Zin Wai Min</option>
+
 <option>Khom</option>
+
 <option>Zin Min Thu</option>
+
 </select>
 
-<input type="number" id="dailySalary" placeholder="Daily Salary">
+<input type="number" id="dailySalary" placeholder="Daily Salary" value="500">
+
+<input type="month" id="month">
+
+<div class="calendar" id="calendar"></div>
+
+<h3>
+Present :
+<span id="presentCount">0</span>
+
+|
+
+Absent :
+<span id="absentCount">0</span>
+
+|
+
+Salary :
+<span id="salaryTotal">0</span>
+</h3>
+
+<hr>
 
 <input type="number" id="room" placeholder="Room Rent">
 
-<input type="number" id="food" placeholder="Food Cost">
+<input type="number" id="food" placeholder="Food">
 
-<input type="number" id="bike" placeholder="Bike Cost">
+<input type="number" id="bike" placeholder="Bike">
 
-<input type="number" id="fuel" placeholder="Fuel Cost">
+<input type="number" id="fuel" placeholder="Fuel">
 
 <input type="number" id="debt" placeholder="Debt">
 
-<input type="number" id="home" placeholder="Home Payment">
+<input type="number" id="home" placeholder="Home">
 
-<input type="number" id="other" placeholder="Other Cost">
-
-</div>
-
-<!-- CALENDAR -->
-<div class="calendar" id="calendar"></div>
-
-<!-- SUMMARY -->
-<div class="summary">
-
-<h2 id="summaryTitle">Summary</h2>
-
-<p id="presentText">Present Days : <span id="presentCount">0</span></p>
-
-<p id="absentText">Absent Days : <span id="absentCount">0</span></p>
-
-<p id="salaryText">Salary : <span id="salaryTotal">0</span></p>
-
-<p id="finalText">Final Salary : <span id="finalSalary">0</span></p>
+<input type="number" id="other" placeholder="Other">
 
 <br>
 
-<button onclick="saveData()" id="saveBtn">Save</button>
+<button id="saveBtn">Save</button>
 
-</div>
-
-<!-- TABLE -->
 <table>
 
 <thead>
 
 <tr>
 
-<th id="thName">Name</th>
-<th id="thPresent">Present</th>
-<th id="thAbsent">Absent</th>
-<th id="thSalary">Salary</th>
-<th id="thRoom">Room</th>
-<th id="thFood">Food</th>
-<th id="thBike">Bike</th>
-<th id="thFuel">Fuel</th>
-<th id="thDebt">Debt</th>
-<th id="thHome">Home</th>
-<th id="thOther">Other</th>
-<th id="thFinal">Final</th>
-<th id="thAction">Action</th>
+<th>Name</th>
+<th>Present</th>
+<th>Absent</th>
+<th>Salary</th>
+<th>Final Salary</th>
+<th>Action</th>
 
 </tr>
 
@@ -275,19 +198,49 @@ display:none;
 let present = 0;
 let absent = 0;
 
-let employeeData = {};
+let data = {};
 
-const calendar = document.getElementById("calendar");
+const loginBtn =
+document.getElementById("loginBtn");
+
+loginBtn.addEventListener("click",function(){
+
+let user =
+document.getElementById("username").value;
+
+let pass =
+document.getElementById("password").value;
+
+if(user === "admin" && pass === "1234"){
+
+document.getElementById("loginPage")
+.classList.add("hidden");
+
+document.getElementById("mainPage")
+.classList.remove("hidden");
+
+}
+else{
+
+alert("Wrong Username or Password");
+
+}
+
+});
+
+const calendar =
+document.getElementById("calendar");
 
 for(let i=1;i<=31;i++){
 
-let day = document.createElement("div");
+let day =
+document.createElement("div");
 
 day.classList.add("day");
 
 day.innerText = i;
 
-day.onclick = function(){
+day.addEventListener("click",function(){
 
 if(day.classList.contains("present")){
 
@@ -298,13 +251,15 @@ day.classList.add("absent");
 present--;
 absent++;
 
-}else if(day.classList.contains("absent")){
+}
+else if(day.classList.contains("absent")){
 
 day.classList.remove("absent");
 
 absent--;
 
-}else{
+}
+else{
 
 day.classList.add("present");
 
@@ -312,103 +267,80 @@ present++;
 
 }
 
-updateData();
+updateSalary();
 
-};
+});
 
 calendar.appendChild(day);
 
 }
 
-function updateData(){
+function updateSalary(){
 
-document.getElementById("presentCount").innerText = present;
+document.getElementById("presentCount")
+.innerText = present;
 
-document.getElementById("absentCount").innerText = absent;
+document.getElementById("absentCount")
+.innerText = absent;
 
-let dailySalary =
-Number(document.getElementById("dailySalary").value) || 0;
+let daily =
+Number(document.getElementById("dailySalary").value || 0);
 
-let salary = present * dailySalary;
+let salary = present * daily;
 
-document.getElementById("salaryTotal").innerText = salary;
-
-let room =
-Number(document.getElementById("room").value) || 0;
-
-let food =
-Number(document.getElementById("food").value) || 0;
-
-let bike =
-Number(document.getElementById("bike").value) || 0;
-
-let fuel =
-Number(document.getElementById("fuel").value) || 0;
-
-let debt =
-Number(document.getElementById("debt").value) || 0;
-
-let home =
-Number(document.getElementById("home").value) || 0;
-
-let other =
-Number(document.getElementById("other").value) || 0;
-
-let final =
-salary - room - food - bike - fuel - debt - home - other;
-
-document.getElementById("finalSalary").innerText = final;
+document.getElementById("salaryTotal")
+.innerText = salary;
 
 }
 
-document.querySelectorAll("input").forEach(input=>{
-input.addEventListener("input",updateData);
-});
+document.getElementById("dailySalary")
+.addEventListener("input",updateSalary);
 
-function saveData(){
+document.getElementById("saveBtn")
+.addEventListener("click",function(){
 
 let name =
 document.getElementById("employee").value;
 
-employeeData[name] = {
+let salary =
+Number(document.getElementById("salaryTotal").innerText);
+
+let room =
+Number(document.getElementById("room").value || 0);
+
+let food =
+Number(document.getElementById("food").value || 0);
+
+let bike =
+Number(document.getElementById("bike").value || 0);
+
+let fuel =
+Number(document.getElementById("fuel").value || 0);
+
+let debt =
+Number(document.getElementById("debt").value || 0);
+
+let home =
+Number(document.getElementById("home").value || 0);
+
+let other =
+Number(document.getElementById("other").value || 0);
+
+let finalSalary =
+salary - room - food - bike - fuel - debt - home - other;
+
+data[name] = {
 
 present,
 absent,
-
-salary:
-document.getElementById("salaryTotal").innerText,
-
-room:
-document.getElementById("room").value || 0,
-
-food:
-document.getElementById("food").value || 0,
-
-bike:
-document.getElementById("bike").value || 0,
-
-fuel:
-document.getElementById("fuel").value || 0,
-
-debt:
-document.getElementById("debt").value || 0,
-
-home:
-document.getElementById("home").value || 0,
-
-other:
-document.getElementById("other").value || 0,
-
-final:
-document.getElementById("finalSalary").innerText
+salary,
+finalSalary
 
 };
 
 renderTable();
 
-clearInputs();
-
-}
+});
 
 function renderTable(){
 
@@ -417,30 +349,73 @@ document.getElementById("tableBody");
 
 table.innerHTML = "";
 
-for(let name in employeeData){
-
-let data = employeeData[name];
+for(let name in data){
 
 table.innerHTML += `
 
 <tr>
 
 <td>${name}</td>
-<td>${data.present}</td>
-<td>${data.absent}</td>
-<td>${data.salary}</td>
-<td>${data.room}</td>
-<td>${data.food}</td>
-<td>${data.bike}</td>
-<td>${data.fuel}</td>
-<td>${data.debt}</td>
-<td>${data.home}</td>
-<td>${data.other}</td>
-<td>${data.final}</td>
+
+<td>${data[name].present}</td>
+
+<td>${data[name].absent}</td>
+
+<td>${data[name].salary}</td>
+
+<td>${data[name].finalSalary}</td>
 
 <td>
 
-<button class="action-btn edit"
-onclick="editData('${name}')">
-Edit
-</butto
+<button onclick="deleteData('${name}')">
+Delete
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+}
+
+}
+
+function deleteData(name){
+
+delete data[name];
+
+renderTable();
+
+}
+
+document.getElementById("language")
+.addEventListener("change",function(){
+
+let lang = this.value;
+
+if(lang === "mm"){
+
+document.getElementById("titleText")
+.innerText = "လစာစနစ်";
+
+document.getElementById("saveBtn")
+.innerText = "သိမ်းမည်";
+
+}
+else{
+
+document.getElementById("titleText")
+.innerText = "Salary System";
+
+document.getElementById("saveBtn")
+.innerText = "Save";
+
+}
+
+});
+
+</script>
+
+</body>
+</html>
