@@ -6,76 +6,76 @@
 <title>Salary System</title>
 
 <style>
-
-*{
+body{
+font-family:Arial;
 margin:0;
 padding:0;
-box-sizing:border-box;
-font-family:Arial;
-}
-
-body{
 background:#f1f5f9;
-padding:20px;
 }
 
-.container{
-max-width:1400px;
-margin:auto;
+.loginPage{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
 }
 
-.card{
+.loginBox{
 background:white;
-padding:20px;
+padding:30px;
 border-radius:15px;
-margin-bottom:20px;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
+width:320px;
+box-shadow:0 0 10px rgba(0,0,0,0.2);
+text-align:center;
 }
 
-input,
-select,
+.loginBox img{
+width:100px;
+margin-bottom:10px;
+}
+
+input,select{
+width:100%;
+padding:10px;
+margin-top:10px;
+border:1px solid #ccc;
+border-radius:8px;
+}
+
 button{
 padding:10px;
-margin:5px;
-border-radius:10px;
-border:1px solid #ccc;
-}
-
-button{
+border:none;
+border-radius:8px;
+cursor:pointer;
 background:#2563eb;
 color:white;
-border:none;
-cursor:pointer;
+margin-top:10px;
 }
 
-button:hover{
-background:#1d4ed8;
-}
-
-.hidden{
+.main{
 display:none;
+padding:20px;
 }
 
-.logo{
-width:120px;
-height:120px;
-border-radius:20px;
-object-fit:cover;
-display:block;
-margin:auto;
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
 margin-bottom:20px;
+flex-wrap:wrap;
+gap:10px;
 }
 
 .calendar{
 display:grid;
 grid-template-columns:repeat(7,1fr);
-gap:10px;
-margin-top:20px;
+gap:8px;
+margin-top:15px;
 }
 
 .day{
-padding:15px;
-background:#ddd;
+padding:12px;
+background:white;
 text-align:center;
 border-radius:10px;
 cursor:pointer;
@@ -96,301 +96,120 @@ table{
 width:100%;
 border-collapse:collapse;
 margin-top:20px;
+background:white;
 }
 
-table th,
-table td{
-border:1px solid #ccc;
+th,td{
+border:1px solid #ddd;
 padding:10px;
 text-align:center;
 }
 
-th{
-background:#111827;
-color:white;
+.settings{
+background:white;
+padding:15px;
+border-radius:10px;
+margin-top:20px;
 }
 
-.topbar{
-display:flex;
-justify-content:space-between;
-align-items:center;
-flex-wrap:wrap;
+@media(max-width:700px){
+.calendar{
+grid-template-columns:repeat(4,1fr);
 }
-
+}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
+<div class="loginPage" id="loginPage">
+<div class="loginBox">
 
-<div class="container" id="loginPage">
+<img id="logoPreview" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
 
-<div class="card" style="max-width:400px;margin:auto;margin-top:50px;">
+<h2 id="loginText">Login</h2>
 
-<img
-id="loginLogo"
-class="logo"
-src="https://upload.wikimedia.org/wikipedia/commons/a/ab/Logo_TV_2015.png"
->
+<input type="text" id="username" placeholder="Username">
+<input type="password" id="password" placeholder="Password">
 
-<h1 id="loginTitle">
-Login
-</h1>
-
-<form id="loginForm">
-
-<input
-type="text"
-id="username"
-placeholder="Username"
-required
->
-
-<input
-type="password"
-id="password"
-placeholder="Password"
-required
->
-
-<button type="submit">
-Login
-</button>
-
-</form>
+<button onclick="login()">Login</button>
 
 </div>
-
 </div>
 
-<!-- MAIN -->
-
-<div class="container hidden" id="mainPage">
-
-<!-- TOP -->
-
-<div class="card">
+<div class="main" id="mainPage">
 
 <div class="topbar">
 
-<h1 id="mainTitle">
-Salary System
-</h1>
+<div>
+<h2 id="title">Salary System</h2>
+
+<select id="language" onchange="changeLanguage()">
+<option value="en">English</option>
+<option value="mm">မြန်မာ</option>
+</select>
+</div>
 
 <div>
-
-<select id="language">
-
-<option value="en">
-English
-</option>
-
-<option value="mm">
-မြန်မာ
-</option>
-
-</select>
-
-<button onclick="openSettings()"
-id="settingBtn">
-
-Settings
-
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- SETTINGS -->
-
-<div class="card hidden"
-id="settingsBox">
-
-<h2 id="settingTitle">
-Settings
-</h2>
-
-<input
-type="text"
-id="newUsername"
-placeholder="New Username"
->
-
-<input
-type="password"
-id="newPassword"
-placeholder="New Password"
->
-
-<input
-type="text"
-id="logoUrl"
-placeholder="Logo Image URL"
->
-
-<button onclick="saveSettings()"
-id="saveSettingBtn">
-
-Save Settings
-
-</button>
-
-</div>
-
-<!-- INPUT -->
-
-<div class="card">
-
-<select id="employee">
-
+<select id="employee" onchange="loadEmployee()">
 <option>Zin Wai Min</option>
-
 <option>Khom</option>
-
 <option>Zin Min Thu</option>
-
 </select>
 
-<input
-type="number"
-id="dailySalary"
-placeholder="Daily Salary"
-value="500"
->
+<select id="month">
+<option>January 2026</option>
+<option>February 2026</option>
+<option>March 2026</option>
+<option>April 2026</option>
+<option>May 2026</option>
+<option>June 2026</option>
+<option>July 2026</option>
+<option>August 2026</option>
+<option>September 2026</option>
+<option>October 2026</option>
+<option>November 2026</option>
+<option>December 2026</option>
+</select>
+</div>
 
-<input type="month" id="month">
+</div>
 
-<br>
-
-<input
-type="number"
-id="room"
-placeholder="Room Rent"
->
-
-<input
-type="number"
-id="food"
-placeholder="Food Cost"
->
-
-<input
-type="number"
-id="bike"
-placeholder="Bike Cost"
->
-
-<input
-type="number"
-id="fuel"
-placeholder="Fuel Cost"
->
-
-<input
-type="number"
-id="debt"
-placeholder="Debt"
->
-
-<input
-type="number"
-id="home"
-placeholder="Home Payment"
->
-
-<input
-type="number"
-id="other"
-placeholder="Other Cost"
->
-
-<!-- CALENDAR -->
+<h3 id="attendanceText">Attendance</h3>
 
 <div class="calendar" id="calendar"></div>
 
-<h3>
-
-<span id="presentText">
-Present
-</span>
-
-:
-<span id="presentCount">
-0
-</span>
-
-|
-
-<span id="absentText">
-Absent
-</span>
-
-:
-<span id="absentCount">
-0
-</span>
-
-|
-
-<span id="salaryText">
-Salary
-</span>
-
-:
-<span id="salaryTotal">
-0
-</span>
-
-|
-
-<span id="finalText">
-Final Salary
-</span>
-
-:
-<span id="finalSalary">
-0
-</span>
-
-</h3>
-
-</div>
-
-<!-- TABLE -->
-
-<div class="card">
-
 <table>
-
 <thead>
-
 <tr>
-
-<th id="thName">Name</th>
-<th id="thPresent">Present</th>
-<th id="thAbsent">Absent</th>
-<th id="thSalary">Salary</th>
-<th id="thRoom">Room</th>
-<th id="thFood">Food</th>
-<th id="thBike">Bike</th>
-<th id="thFuel">Fuel</th>
-<th id="thDebt">Debt</th>
-<th id="thHome">Home</th>
-<th id="thOther">Other</th>
-<th id="thFinal">Final</th>
-<th id="thAction">Action</th>
-
+<th id="nameText">Name</th>
+<th id="presentText">Present</th>
+<th id="absentText">Absent</th>
+<th id="salaryText">Salary</th>
+<th id="roomText">Room</th>
+<th id="foodText">Food</th>
+<th id="debtText">Debt</th>
+<th id="fuelText">Fuel</th>
+<th id="otherText">Other</th>
+<th id="finalText">Final</th>
+<th>Edit</th>
+<th>Delete</th>
 </tr>
-
 </thead>
 
 <tbody id="tableBody"></tbody>
-
 </table>
+
+<div class="settings">
+
+<h3 id="settingText">Settings</h3>
+
+<input type="text" id="newUser" placeholder="New Username">
+<input type="password" id="newPass" placeholder="New Password">
+
+<input type="text" id="logoInput" placeholder="Logo Image URL">
+
+<button onclick="saveSettings()">Save Settings</button>
 
 </div>
 
@@ -398,204 +217,236 @@ Final Salary
 
 <script>
 
-/* LOGIN */
+let savedUser=localStorage.getItem("user") || "admin";
+let savedPass=localStorage.getItem("pass") || "1234";
 
-let loginUsername =
-localStorage.getItem("username") || "admin";
-
-let loginPassword =
-localStorage.getItem("password") || "1234";
-
-let savedLogo =
-localStorage.getItem("logo");
-
-if(savedLogo){
-
-document.getElementById("loginLogo").src =
-savedLogo;
-
+let employees={
+"Zin Wai Min":{
+present:0,
+absent:0,
+salary:0,
+room:0,
+food:0,
+debt:0,
+fuel:0,
+other:0
+},
+"Khom":{
+present:0,
+absent:0,
+salary:0,
+room:0,
+food:0,
+debt:0,
+fuel:0,
+other:0
+},
+"Zin Min Thu":{
+present:0,
+absent:0,
+salary:0,
+room:0,
+food:0,
+debt:0,
+fuel:0,
+other:0
 }
+};
 
-document.getElementById("loginForm")
-.addEventListener("submit",function(e){
+function login(){
 
-e.preventDefault();
+let u=document.getElementById("username").value;
+let p=document.getElementById("password").value;
 
-let user =
-document.getElementById("username").value.trim();
+if(u===savedUser && p===savedPass){
 
-let pass =
-document.getElementById("password").value.trim();
+document.getElementById("loginPage").style.display="none";
+document.getElementById("mainPage").style.display="block";
 
-if(user === loginUsername &&
-pass === loginPassword){
+loadEmployee();
 
-document.getElementById("loginPage")
-.classList.add("hidden");
-
-document.getElementById("mainPage")
-.classList.remove("hidden");
-
-}
-else{
-
+}else{
 alert("Wrong Username or Password");
+}
 
 }
 
-});
+function createCalendar(){
 
-/* SETTINGS */
-
-function openSettings(){
-
-document.getElementById("settingsBox")
-.classList.toggle("hidden");
-
-}
-
-function saveSettings(){
-
-let newUser =
-document.getElementById("newUsername").value;
-
-let newPass =
-document.getElementById("newPassword").value;
-
-let logo =
-document.getElementById("logoUrl").value;
-
-if(newUser){
-
-localStorage.setItem(
-"username",
-newUser
-);
-
-loginUsername = newUser;
-
-}
-
-if(newPass){
-
-localStorage.setItem(
-"password",
-newPass
-);
-
-loginPassword = newPass;
-
-}
-
-if(logo){
-
-localStorage.setItem(
-"logo",
-logo
-);
-
-document.getElementById("loginLogo").src =
-logo;
-
-}
-
-alert("Saved");
-
-}
-
-/* SALARY */
-
-let present = 0;
-let absent = 0;
-
-let employeeData = {};
-
-const calendar =
-document.getElementById("calendar");
+let calendar=document.getElementById("calendar");
+calendar.innerHTML="";
 
 for(let i=1;i<=31;i++){
 
-let day =
-document.createElement("div");
-
+let day=document.createElement("div");
 day.classList.add("day");
+day.innerText=i;
 
-day.innerText = i;
-
-day.onclick = function(){
+day.onclick=function(){
 
 if(day.classList.contains("present")){
-
 day.classList.remove("present");
-
 day.classList.add("absent");
 
-present--;
-absent++;
-
-}
-else if(day.classList.contains("absent")){
-
+}else if(day.classList.contains("absent")){
 day.classList.remove("absent");
 
-absent--;
-
-}
-else{
-
+}else{
 day.classList.add("present");
-
-present++;
-
 }
 
-updateData();
-
-autoSave();
-
+calculate();
 };
 
 calendar.appendChild(day);
 
 }
 
-function updateData(){
+}
 
-document.getElementById("presentCount")
-.innerText = present;
+function calculate(){
 
-document.getElementById("absentCount")
-.innerText = absent;
+let present=document.querySelectorAll(".present").length;
+let absent=document.querySelectorAll(".absent").length;
 
-let daily =
-Number(document.getElementById("dailySalary").value || 0);
+let salary=present*500;
 
-let salary =
-present * daily;
+let emp=document.getElementById("employee").value;
 
-document.getElementById("salaryTotal")
-.innerText = salary;
+employees[emp].present=present;
+employees[emp].absent=absent;
+employees[emp].salary=salary;
 
-let room =
-Number(document.getElementById("room").value || 0);
+renderTable();
 
-let food =
-Number(document.getElementById("food").value || 0);
+}
 
-let bike =
-Number(document.getElementById("bike").value || 0);
+function renderTable(){
 
-let fuel =
-Number(document.getElementById("fuel").value || 0);
+let body=document.getElementById("tableBody");
+body.innerHTML="";
 
-let debt =
-Number(document.getElementById("debt").value || 0);
+for(let name in employees){
 
-let home =
-Number(document.getElementById("home").value || 0);
+let e=employees[name];
 
-let other =
-Number(document.getElementById("other").value || 0);
+let final=e.salary-e.room-e.food-e.debt-e.fuel-e.other;
 
-let finalSalary =
-salary - room - fo
+body.innerHTML+=`
+<tr>
+<td>${name}</td>
+
+<td>${e.present}</td>
+
+<td>${e.absent}</td>
+
+<td>${e.salary}</td>
+
+<td contenteditable oninput="updateValue('${name}','room',this.innerText)">
+${e.room}
+</td>
+
+<td contenteditable oninput="updateValue('${name}','food',this.innerText)">
+${e.food}
+</td>
+
+<td contenteditable oninput="updateValue('${name}','debt',this.innerText)">
+${e.debt}
+</td>
+
+<td contenteditable oninput="updateValue('${name}','fuel',this.innerText)">
+${e.fuel}
+</td>
+
+<td contenteditable oninput="updateValue('${name}','other',this.innerText)">
+${e.other}
+</td>
+
+<td>${final}</td>
+
+<td>
+<button onclick="editEmployee('${name}')">Edit</button>
+</td>
+
+<td>
+<button onclick="deleteEmployee('${name}')">Delete</button>
+</td>
+
+</tr>
+`;
+}
+
+}
+
+function updateValue(name,key,value){
+
+employees[name][key]=Number(value)||0;
+
+renderTable();
+
+}
+
+function editEmployee(name){
+
+let newName=prompt("Edit Name",name);
+
+if(newName){
+
+employees[newName]=employees[name];
+
+delete employees[name];
+
+renderTable();
+
+}
+
+}
+
+function deleteEmployee(name){
+
+delete employees[name];
+
+renderTable();
+
+}
+
+function loadEmployee(){
+
+createCalendar();
+
+}
+
+function saveSettings(){
+
+let newUser=document.getElementById("newUser").value;
+let newPass=document.getElementById("newPass").value;
+let logo=document.getElementById("logoInput").value;
+
+if(newUser){
+localStorage.setItem("user",newUser);
+savedUser=newUser;
+}
+
+if(newPass){
+localStorage.setItem("pass",newPass);
+savedPass=newPass;
+}
+
+if(logo){
+document.getElementById("logoPreview").src=logo;
+localStorage.setItem("logo",logo);
+}
+
+alert("Saved");
+
+}
+
+let savedLogo=localStorage.getItem("logo");
+
+if(savedLogo){
+document.getElementById("logoPreview").src=savedLogo;
+}
+
+function changeLanguage(){
+
+let lang=docu
