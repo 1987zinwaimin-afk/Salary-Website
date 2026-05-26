@@ -6,95 +6,131 @@
 <title>Salary System</title>
 
 <style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial;
+}
 
 body{
-    margin:0;
-    padding:0;
-    font-family:Arial;
-    background:#f1f5f9;
+background:#f2f5ff;
+padding:20px;
 }
 
-.container{
-    max-width:1400px;
-    margin:auto;
-    padding:20px;
+.login-box,
+.main-box{
+max-width:1200px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:15px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
-.card{
-    background:white;
-    padding:20px;
-    border-radius:15px;
-    margin-bottom:20px;
-    box-shadow:0 0 10px rgba(0,0,0,0.1);
+h1{
+text-align:center;
+margin-bottom:20px;
+color:#1e3a8a;
 }
 
 input,select,button{
-    padding:10px;
-    margin:5px;
-    border-radius:10px;
-    border:1px solid #ccc;
+padding:10px;
+margin:5px;
+border-radius:8px;
+border:1px solid #ccc;
 }
 
 button{
-    background:#2563eb;
-    color:white;
-    border:none;
-    cursor:pointer;
+background:#2563eb;
+color:white;
+cursor:pointer;
+border:none;
 }
 
 button:hover{
-    background:#1d4ed8;
+background:#1d4ed8;
 }
 
-table{
-    width:100%;
-    border-collapse:collapse;
-    background:white;
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:10px;
+margin-bottom:20px;
 }
 
-th,td{
-    border:1px solid #ccc;
-    padding:10px;
-    text-align:center;
-}
-
-th{
-    background:#0f172a;
-    color:white;
+.calendar{
+display:grid;
+grid-template-columns:repeat(7,1fr);
+gap:10px;
+margin-top:20px;
 }
 
 .day{
-    width:40px;
-    height:40px;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    margin:4px;
-    border-radius:10px;
-    background:#d1d5db;
-    cursor:pointer;
-    font-weight:bold;
+padding:15px;
+background:#e5e7eb;
+text-align:center;
+border-radius:10px;
+cursor:pointer;
+font-weight:bold;
 }
 
 .present{
-    background:#2563eb;
-    color:white;
+background:#2563eb;
+color:white;
 }
 
 .absent{
-    background:red;
-    color:white;
+background:#ef4444;
+color:white;
 }
 
-#mainPage{
-    display:none;
+.summary{
+margin-top:20px;
+background:#f8fafc;
+padding:15px;
+border-radius:10px;
 }
 
-.topbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    flex-wrap:wrap;
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+background:white;
+}
+
+table th,table td{
+border:1px solid #ccc;
+padding:10px;
+text-align:center;
+}
+
+.action-btn{
+padding:5px 10px;
+border:none;
+border-radius:5px;
+color:white;
+cursor:pointer;
+}
+
+.edit{
+background:orange;
+}
+
+.delete{
+background:red;
+}
+
+.top-bar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+flex-wrap:wrap;
+}
+
+.hidden{
+display:none;
 }
 
 </style>
@@ -102,90 +138,68 @@ th{
 
 <body>
 
-<!-- LOGIN PAGE -->
+<!-- LOGIN -->
+<div class="login-box" id="loginPage">
 
-<div id="loginPage" class="container">
-
-<div class="card" style="max-width:400px;margin:auto;margin-top:100px;">
-
-<h2 id="loginTitle">Login</h2>
+<h1 id="loginTitle">Login</h1>
 
 <input type="text" id="username" placeholder="Username"><br>
-
 <input type="password" id="password" placeholder="Password"><br>
 
 <button onclick="login()" id="loginBtn">Login</button>
 
-<p id="loginMsg"></p>
-
 </div>
 
-</div>
+<!-- MAIN -->
+<div class="main-box hidden" id="mainPage">
 
-<!-- MAIN PAGE -->
+<div class="top-bar">
 
-<div id="mainPage">
-
-<div class="container">
-
-<div class="topbar">
-
-<h2 id="mainTitle">Salary System</h2>
+<h1 id="mainTitle">Salary System</h1>
 
 <div>
 
 <select id="language" onchange="changeLanguage()">
-
 <option value="en">English</option>
-
 <option value="mm">မြန်မာ</option>
-
 </select>
 
-<button onclick="logout()" id="logoutBtn">Logout</button>
+<select id="month">
+<option>January</option>
+<option>February</option>
+<option>March</option>
+<option>April</option>
+<option>May</option>
+<option>June</option>
+<option>July</option>
+<option>August</option>
+<option>September</option>
+<option>October</option>
+<option>November</option>
+<option>December</option>
+</select>
+
+<select id="year">
+<option>2025</option>
+<option>2026</option>
+<option>2027</option>
+<option>2028</option>
+</select>
 
 </div>
 
 </div>
 
-<div class="card">
-
-<h3 id="employeeText">Employee Data</h3>
-
-<input type="month" id="month">
+<!-- INPUT -->
+<div class="grid">
 
 <select id="employee">
-
 <option>Zin Wai Min</option>
-
 <option>Khom</option>
-
 <option>Zin Min Thu</option>
-
 </select>
 
 <input type="number" id="dailySalary" placeholder="Daily Salary">
-
-<div id="calendar"></div>
-
-<h3>
-
-<span id="presentText">Present</span> :
-<span id="presentCount">0</span>
-
-|
-
-<span id="absentText">Absent</span> :
-<span id="absentCount">0</span>
-
-|
-
-<span id="salaryText">Salary</span> :
-<span id="salaryTotal">0</span>
-
-</h3>
-
-<hr>
 
 <input type="number" id="room" placeholder="Room Rent">
 
@@ -197,14 +211,35 @@ th{
 
 <input type="number" id="debt" placeholder="Debt">
 
-<input type="number" id="home" placeholder="Home Money">
+<input type="number" id="home" placeholder="Home Payment">
 
-<br><br>
+<input type="number" id="other" placeholder="Other Cost">
+
+</div>
+
+<!-- CALENDAR -->
+<div class="calendar" id="calendar"></div>
+
+<!-- SUMMARY -->
+<div class="summary">
+
+<h2 id="summaryTitle">Summary</h2>
+
+<p id="presentText">Present Days : <span id="presentCount">0</span></p>
+
+<p id="absentText">Absent Days : <span id="absentCount">0</span></p>
+
+<p id="salaryText">Salary : <span id="salaryTotal">0</span></p>
+
+<p id="finalText">Final Salary : <span id="finalSalary">0</span></p>
+
+<br>
 
 <button onclick="saveData()" id="saveBtn">Save</button>
 
 </div>
 
+<!-- TABLE -->
 <table>
 
 <thead>
@@ -212,7 +247,6 @@ th{
 <tr>
 
 <th id="thName">Name</th>
-<th id="thMonth">Month</th>
 <th id="thPresent">Present</th>
 <th id="thAbsent">Absent</th>
 <th id="thSalary">Salary</th>
@@ -222,7 +256,8 @@ th{
 <th id="thFuel">Fuel</th>
 <th id="thDebt">Debt</th>
 <th id="thHome">Home</th>
-<th id="thFinal">Final Salary</th>
+<th id="thOther">Other</th>
+<th id="thFinal">Final</th>
 <th id="thAction">Action</th>
 
 </tr>
@@ -235,48 +270,14 @@ th{
 
 </div>
 
-</div>
-
 <script>
 
 let present = 0;
 let absent = 0;
 
-function login(){
+let employeeData = {};
 
-let user = document.getElementById("username").value;
-let pass = document.getElementById("password").value;
-
-if(user === "Admin" && pass === "1234"){
-
-document.getElementById("loginPage").style.display = "none";
-
-document.getElementById("mainPage").style.display = "block";
-
-generateCalendar();
-
-}else{
-
-document.getElementById("loginMsg").innerText = "Wrong Username or Password";
-
-}
-
-}
-
-function logout(){
-
-location.reload();
-
-}
-
-function generateCalendar(){
-
-let calendar = document.getElementById("calendar");
-
-calendar.innerHTML = "";
-
-present = 0;
-absent = 0;
+const calendar = document.getElementById("calendar");
 
 for(let i=1;i<=31;i++){
 
@@ -291,6 +292,7 @@ day.onclick = function(){
 if(day.classList.contains("present")){
 
 day.classList.remove("present");
+
 day.classList.add("absent");
 
 present--;
@@ -310,7 +312,7 @@ present++;
 
 }
 
-updateSalary();
+updateData();
 
 };
 
@@ -318,117 +320,127 @@ calendar.appendChild(day);
 
 }
 
-}
-
-function updateSalary(){
+function updateData(){
 
 document.getElementById("presentCount").innerText = present;
 
 document.getElementById("absentCount").innerText = absent;
 
-let daily = Number(document.getElementById("dailySalary").value || 0);
+let dailySalary =
+Number(document.getElementById("dailySalary").value) || 0;
 
-document.getElementById("salaryTotal").innerText = present * daily;
+let salary = present * dailySalary;
+
+document.getElementById("salaryTotal").innerText = salary;
+
+let room =
+Number(document.getElementById("room").value) || 0;
+
+let food =
+Number(document.getElementById("food").value) || 0;
+
+let bike =
+Number(document.getElementById("bike").value) || 0;
+
+let fuel =
+Number(document.getElementById("fuel").value) || 0;
+
+let debt =
+Number(document.getElementById("debt").value) || 0;
+
+let home =
+Number(document.getElementById("home").value) || 0;
+
+let other =
+Number(document.getElementById("other").value) || 0;
+
+let final =
+salary - room - food - bike - fuel - debt - home - other;
+
+document.getElementById("finalSalary").innerText = final;
 
 }
 
-document.getElementById("dailySalary").addEventListener("input",updateSalary);
+document.querySelectorAll("input").forEach(input=>{
+input.addEventListener("input",updateData);
+});
 
 function saveData(){
 
-let name = document.getElementById("employee").value;
+let name =
+document.getElementById("employee").value;
 
-let month = document.getElementById("month").value;
+employeeData[name] = {
 
-let salary = Number(document.getElementById("salaryTotal").innerText);
+present,
+absent,
 
-let room = Number(document.getElementById("room").value || 0);
+salary:
+document.getElementById("salaryTotal").innerText,
 
-let food = Number(document.getElementById("food").value || 0);
+room:
+document.getElementById("room").value || 0,
 
-let bike = Number(document.getElementById("bike").value || 0);
+food:
+document.getElementById("food").value || 0,
 
-let fuel = Number(document.getElementById("fuel").value || 0);
+bike:
+document.getElementById("bike").value || 0,
 
-let debt = Number(document.getElementById("debt").value || 0);
+fuel:
+document.getElementById("fuel").value || 0,
 
-let home = Number(document.getElementById("home").value || 0);
+debt:
+document.getElementById("debt").value || 0,
 
-let finalSalary =
-salary - room - food - bike - fuel - debt - home;
+home:
+document.getElementById("home").value || 0,
 
-let table = document.getElementById("tableBody");
+other:
+document.getElementById("other").value || 0,
 
-let rows = table.getElementsByTagName("tr");
+final:
+document.getElementById("finalSalary").innerText
 
-let found = false;
+};
 
-for(let i=0; i<rows.length; i++){
+renderTable();
 
-let rowName = rows[i].cells[0].innerText;
-
-if(rowName === name){
-
-rows[i].cells[1].innerText = month;
-rows[i].cells[2].innerText = present;
-rows[i].cells[3].innerText = absent;
-rows[i].cells[4].innerText = salary;
-rows[i].cells[5].innerText = room;
-rows[i].cells[6].innerText = food;
-rows[i].cells[7].innerText = bike;
-rows[i].cells[8].innerText = fuel;
-rows[i].cells[9].innerText = debt;
-rows[i].cells[10].innerText = home;
-rows[i].cells[11].innerText = finalSalary;
-
-found = true;
-
-break;
+clearInputs();
 
 }
 
-}
+function renderTable(){
 
-if(!found){
+let table =
+document.getElementById("tableBody");
+
+table.innerHTML = "";
+
+for(let name in employeeData){
+
+let data = employeeData[name];
 
 table.innerHTML += `
 
 <tr>
 
 <td>${name}</td>
-<td>${month}</td>
-<td>${present}</td>
-<td>${absent}</td>
-<td>${salary}</td>
-<td>${room}</td>
-<td>${food}</td>
-<td>${bike}</td>
-<td>${fuel}</td>
-<td>${debt}</td>
-<td>${home}</td>
-<td>${finalSalary}</td>
+<td>${data.present}</td>
+<td>${data.absent}</td>
+<td>${data.salary}</td>
+<td>${data.room}</td>
+<td>${data.food}</td>
+<td>${data.bike}</td>
+<td>${data.fuel}</td>
+<td>${data.debt}</td>
+<td>${data.home}</td>
+<td>${data.other}</td>
+<td>${data.final}</td>
 
 <td>
 
-<button onclick="deleteRow(this)">Delete</button>
-
-</td>
-
-</tr>
-
-`;
-
-}
-
-document.getElementById("room").value = "";
-document.getElementById("food").value = "";
-document.getElementById("bike").value = "";
-document.getElementById("fuel").value = "";
-document.getElementById("debt").value = "";
-document.getElementById("home").value = "";
-
-}
-
-function deleteRow(btn){
-
-btn.parentElement.parentEl
+<button class="action-btn edit"
+onclick="editData('${name}')">
+Edit
+</butto
