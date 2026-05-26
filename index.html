@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Salary Website</title>
 
 <style>
@@ -129,9 +130,9 @@ table{
 
 <input type="text" id="name" placeholder="အမည်">
 
-<input type="number" id="dailySalary" placeholder="နေ့စား (ဥပမာ 500)" value="500">
+<input type="number" id="dailySalary" placeholder="နေ့စား" value="500">
 
-<button onclick="startEmployee()">စတင်မည်</button>
+<button onclick="startEmployee()">ဝန်ထမ်းအသစ်</button>
 
 <div class="calendar" id="calendar"></div>
 
@@ -141,7 +142,7 @@ table{
 
 <p>ပျက်ရက် : <span id="absentCount">0</span></p>
 
-<p>စုစုပေါင်းလစာ : <span id="salaryTotal">0</span> ကျပ်</p>
+<p>လစာ : <span id="salaryTotal">0</span> ကျပ်</p>
 
 </div>
 
@@ -207,7 +208,10 @@ table{
 let present = 0;
 let absent = 0;
 
-const calendar = document.getElementById("calendar");
+let currentRow = null;
+
+const calendar =
+document.getElementById("calendar");
 
 for(let i=1;i<=30;i++){
 
@@ -218,6 +222,11 @@ for(let i=1;i<=30;i++){
     day.innerText = i;
 
     day.onclick = function(){
+
+        if(!currentRow){
+            alert("ဝန်ထမ်းအသစ် ကိုအရင်နှိပ်ပါ");
+            return;
+        }
 
         if(day.classList.contains("present")){
 
@@ -254,14 +263,39 @@ for(let i=1;i<=30;i++){
 
 }
 
+function startEmployee(){
+
+    present = 0;
+    absent = 0;
+
+    document.querySelectorAll(".day").forEach(day=>{
+
+        day.classList.remove("present");
+        day.classList.remove("absent");
+
+    });
+
+    currentRow = document.createElement("tr");
+
+    document.getElementById("tableBody")
+    .appendChild(currentRow);
+
+    updateData();
+
+}
+
 function updateData(){
 
-    let name = document.getElementById("name").value;
+    if(!currentRow) return;
+
+    let name =
+    document.getElementById("name").value;
 
     let dailySalary =
     Number(document.getElementById("dailySalary").value || 0);
 
-    let salary = present * dailySalary;
+    let salary =
+    present * dailySalary;
 
     let room =
     Number(document.getElementById("room").value || 0);
@@ -289,8 +323,6 @@ function updateData(){
     document.getElementById("absentCount").innerText = absent;
 
     document.getElementById("salaryTotal").innerText = salary;
-
-    document.getElementById("tableBody").innerHTML += "";
 
     currentRow.innerHTML = `
 
@@ -322,32 +354,19 @@ function updateData(){
 
 }
 
-let currentRow = null;
-
-function startEmployee(){
-
-    present = 0;
-    absent = 0;
-
-    document.querySelectorAll(".day").forEach(day=>{
-
-        day.classList.remove("present");
-        day.classList.remove("absent");
-
-    });
-
-    currentRow = document.createElement("tr");
-
-    document.getElementById("tableBody")
-    .appendChild(currentRow);
-
-    updateData();
-
-}
-
 document.querySelectorAll("input").forEach(input=>{
 
     input.addEventListener("input",updateData);
+
+    input.addEventListener("change",function(){
+
+        if(this.type === "number"){
+
+            this.value = "";
+
+        }
+
+    });
 
 });
 
