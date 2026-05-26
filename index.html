@@ -14,7 +14,7 @@ body{
 }
 
 .container{
-    max-width:1200px;
+    max-width:1400px;
     margin:auto;
 }
 
@@ -44,7 +44,6 @@ h1,h2{
     border-radius:10px;
     cursor:pointer;
     font-weight:bold;
-    transition:0.2s;
 }
 
 .present{
@@ -62,6 +61,16 @@ input{
     margin:5px;
     border-radius:8px;
     border:1px solid #ccc;
+}
+
+button{
+    padding:10px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#2563eb;
+    color:white;
+    margin:5px;
 }
 
 table{
@@ -97,6 +106,10 @@ input{
     width:90%;
 }
 
+table{
+    font-size:12px;
+}
+
 }
 
 </style>
@@ -113,6 +126,12 @@ input{
 
 <p>အပြာ = အလုပ်ဆင်း</p>
 <p>အနီ = ပျက်</p>
+
+<input type="text" id="name" placeholder="အမည်">
+
+<input type="number" id="dailySalary" placeholder="နေ့စား (ဥပမာ 500)" value="500">
+
+<button onclick="startEmployee()">စတင်မည်</button>
 
 <div class="calendar" id="calendar"></div>
 
@@ -132,8 +151,6 @@ input{
 
 <h2>အသုံးစရိတ်</h2>
 
-<input type="text" id="name" placeholder="အမည်">
-
 <input type="number" id="room" placeholder="အခန်းခ">
 
 <input type="number" id="food" placeholder="စားစရိတ်">
@@ -146,38 +163,36 @@ input{
 
 <input type="number" id="home" placeholder="အိမ်ပေးငွေ">
 
+</div>
+
+<div class="card">
+
+<h2>ဝန်ထမ်းစာရင်း</h2>
+
 <table>
 
 <thead>
 
 <tr>
+
 <th>အမည်</th>
 <th>ဆင်းရက်</th>
 <th>ပျက်ရက်</th>
+<th>နေ့စား</th>
 <th>လစာ</th>
-<th>အသုံးစရိတ်</th>
+<th>အခန်းခ</th>
+<th>စားစရိတ်</th>
+<th>ဆိုင်ကယ်ဖိုး</th>
+<th>ဆီဖိုး</th>
+<th>အကြွေး</th>
+<th>အိမ်ပေးငွေ</th>
 <th>ကျန်ငွေ</th>
+
 </tr>
 
 </thead>
 
 <tbody id="tableBody">
-
-<tr>
-
-<td id="tbName"></td>
-
-<td id="tbPresent">0</td>
-
-<td id="tbAbsent">0</td>
-
-<td id="tbSalary">0</td>
-
-<td id="tbExpense">0</td>
-
-<td id="tbFinal">0</td>
-
-</tr>
 
 </tbody>
 
@@ -191,8 +206,6 @@ input{
 
 let present = 0;
 let absent = 0;
-
-const dailySalary = 500;
 
 const calendar = document.getElementById("calendar");
 
@@ -243,23 +256,33 @@ for(let i=1;i<=30;i++){
 
 function updateData(){
 
+    let name = document.getElementById("name").value;
+
+    let dailySalary =
+    Number(document.getElementById("dailySalary").value || 0);
+
     let salary = present * dailySalary;
 
-    let room = Number(document.getElementById("room").value || 0);
+    let room =
+    Number(document.getElementById("room").value || 0);
 
-    let food = Number(document.getElementById("food").value || 0);
+    let food =
+    Number(document.getElementById("food").value || 0);
 
-    let bike = Number(document.getElementById("bike").value || 0);
+    let bike =
+    Number(document.getElementById("bike").value || 0);
 
-    let fuel = Number(document.getElementById("fuel").value || 0);
+    let fuel =
+    Number(document.getElementById("fuel").value || 0);
 
-    let debt = Number(document.getElementById("debt").value || 0);
+    let debt =
+    Number(document.getElementById("debt").value || 0);
 
-    let home = Number(document.getElementById("home").value || 0);
+    let home =
+    Number(document.getElementById("home").value || 0);
 
-    let expense = room + food + bike + fuel + debt + home;
-
-    let finalSalary = salary - expense;
+    let finalSalary =
+    salary - room - food - bike - fuel - debt - home;
 
     document.getElementById("presentCount").innerText = present;
 
@@ -267,18 +290,58 @@ function updateData(){
 
     document.getElementById("salaryTotal").innerText = salary;
 
-    document.getElementById("tbName").innerText =
-    document.getElementById("name").value;
+    document.getElementById("tableBody").innerHTML += "";
 
-    document.getElementById("tbPresent").innerText = present;
+    currentRow.innerHTML = `
 
-    document.getElementById("tbAbsent").innerText = absent;
+    <td>${name}</td>
 
-    document.getElementById("tbSalary").innerText = salary;
+    <td>${present}</td>
 
-    document.getElementById("tbExpense").innerText = expense;
+    <td>${absent}</td>
 
-    document.getElementById("tbFinal").innerText = finalSalary;
+    <td>${dailySalary}</td>
+
+    <td>${salary}</td>
+
+    <td>${room}</td>
+
+    <td>${food}</td>
+
+    <td>${bike}</td>
+
+    <td>${fuel}</td>
+
+    <td>${debt}</td>
+
+    <td>${home}</td>
+
+    <td>${finalSalary}</td>
+
+    `;
+
+}
+
+let currentRow = null;
+
+function startEmployee(){
+
+    present = 0;
+    absent = 0;
+
+    document.querySelectorAll(".day").forEach(day=>{
+
+        day.classList.remove("present");
+        day.classList.remove("absent");
+
+    });
+
+    currentRow = document.createElement("tr");
+
+    document.getElementById("tableBody")
+    .appendChild(currentRow);
+
+    updateData();
 
 }
 
