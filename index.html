@@ -217,57 +217,55 @@ grid-template-columns:repeat(4,1fr);
 
 <script>
 
-let savedUser=localStorage.getItem("user") || "admin";
-let savedPass=localStorage.getItem("pass") || "1234";
+let employees = JSON.parse(localStorage.getItem("employees")) || {
 
-let employees={
 "Zin Wai Min":{
 present:0,
 absent:0,
+salaryPerDay:500,
 salary:0,
 room:0,
 food:0,
 debt:0,
 fuel:0,
-other:0
+other:0,
+days:[]
 },
+
 "Khom":{
 present:0,
 absent:0,
+salaryPerDay:700,
 salary:0,
 room:0,
 food:0,
 debt:0,
 fuel:0,
-other:0
+other:0,
+days:[]
 },
+
 "Zin Min Thu":{
 present:0,
 absent:0,
+salaryPerDay:1000,
 salary:0,
 room:0,
 food:0,
 debt:0,
 fuel:0,
-other:0
+other:0,
+days:[]
 }
+
 };
 
-function login(){
-
-let u=document.getElementById("username").value;
-let p=document.getElementById("password").value;
-
-if(u===savedUser && p===savedPass){
-
-document.getElementById("loginPage").style.display="none";document.getElementById("mainPage").style.display="block";
-
-loadEmployee();
-
-}else{
-alert("Wrong Username or Password");
+function saveData(){
+localStorage.setItem("employees",JSON.stringify(employees));
 }
 
+function currentEmployee(){
+return document.getElementById("employee").value;
 }
 
 function createCalendar(){
@@ -275,26 +273,36 @@ function createCalendar(){
 let calendar=document.getElementById("calendar");
 calendar.innerHTML="";
 
+let emp=currentEmployee();
+
 for(let i=1;i<=31;i++){
 
 let day=document.createElement("div");
-day.classList.add("day");
+day.className="day";
 day.innerText=i;
 
-day.onclick=function(){
-
-if(day.classList.contains("present")){
-day.classList.remove("present");
-day.classList.add("absent");
-
-}else if(day.classList.contains("absent")){
-day.classList.remove("absent");
-
-}else{
+if(employees[emp].days.includes(i)){
 day.classList.add("present");
 }
 
-calculate();
+day.onclick=function(){
+
+let index=employees[emp].days.indexOf(i);
+
+if(index>-1){
+
+employees[emp].days.splice(index,1);
+
+}else{
+
+employees[emp].days.push(i);
+
+}
+
+updateEmployee(emp);
+
+createCalendar();
+
 };
 
 calendar.appendChild(day);
@@ -303,18 +311,17 @@ calendar.appendChild(day);
 
 }
 
-function calculate(){
+function updateEmployee(name){
 
-let present=document.querySelectorAll(".present").length;
-let absent=document.querySelectorAll(".absent").length;
+let e=employees[name];
 
-let salary=present*500;
+e.present=e.days.length;
 
-let emp=document.getElementById("employee").value;
+e.absent=31-e.present;
 
-employees[emp].present=present;
-employees[emp].absent=absent;
-employees[emp].salary=salary;
+e.salary=e.present*e.salaryPerDay;
+
+saveData();
 
 renderTable();
 
@@ -323,77 +330,118 @@ renderTable();
 function renderTable(){
 
 let body=document.getElementById("tableBody");
+
 body.innerHTML="";
 
 for(let name in employees){
 
 let e=employees[name];
 
-let final=e.salary-e.room-e.food-e.debt-e.fuel-e.other;
+let final=
+e.salary-
+e.room-
+e.food-
+e.debt-
+e.fuel-
+e.other;
 
 body.innerHTML+=`
+
 <tr>
+
 <td>${name}</td>
 
 <td>${e.present}</td>
 
 <td>${e.absent}</td>
 
-<td>${e.salary}</td>
+<td contenteditable
+oninput="editValue('${name}','salaryPerDay',this.innerText)">
+${e.salaryPerDay}
+</td>
 
-<td contenteditable oninput="updateValue('${name}','room',this.innerText)">
+<td contenteditable
+oninput="editValue('${name}','room',this.innerText)">
 ${e.room}
 </td>
 
-<td contenteditable oninput="updateValue('${name}','food',this.innerText)">
+<td contenteditable
+oninput="editValue('${name}','food',this.innerText)">
 ${e.food}
 </td>
 
-<td contenteditable oninput="updateValue('${name}','debt',this.innerText)">
+<td contenteditable
+oninput="editValue('${name}','debt',this.innerText)">
 ${e.debt}
 </td>
 
-<td contenteditable oninput="updateValue('${name}','fuel',this.innerText)">
+<td contenteditable
+oninput="editValue('${name}','fuel',this.innerText)">
 ${e.fuel}
 </td>
 
-<td contenteditable oninput="updateValue('${name}','other',this.innerText)">
+<td contenteditable
+oninput="editValue('${name}','other',this.innerText)">
 ${e.other}
 </td>
 
 <td>${final}</td>
 
 <td>
-<button onclick="editEmployee('${name}')">Edit</button>
+<button onclick="editName('${name}')">
+Edit
+</button>
 </td>
 
 <td>
-<button onclick="deleteEmployee('${name}')">Delete</button>
+<button onclick="deleteUser('${name}')">
+Delete
+</button>
 </td>
 
 </tr>
+
 `;
-}
 
 }
 
-function updateValue(name,key,value){
+}
+
+function editValue(name,key,value){
 
 employees[name][key]=Number(value)||0;
 
-renderTable();
+updateEmployee(name);
+
+saveData();
 
 }
 
-function editEmployee(name){
+function editName(oldName){
 
-let newName=prompt("Edit Name",name);
+let newName=prompt("New Name",oldName);
 
 if(newName){
 
-employees[newName]=employees[name];
+employees[newName]=employees[oldName];
+
+delete employees[oldName];
+
+saveData();
+
+renderTable();
+
+}
+
+}
+
+function deleteUser(name){
+
+if(confirm("Delete?")){
 
 delete employees[name];
+
+saveData();
 
 renderTable();
 
@@ -401,90 +449,16 @@ renderTable();
 
 }
 
-function deleteEmployee(name){
-
-delete employees[name];
-
-renderTable();
-
-}
-
-function loadEmployee(){
+document.getElementById("employee")
+.onchange=function(){
 
 createCalendar();
 
-}
+renderTable();
 
-function saveSettings(){
+};
 
-let newUser=document.getElementById("newUser").value;
-let newPass=document.getElementById("newPass").value;
-let logo=document.getElementById("logoInput").value;
-
-if(newUser){
-localStorage.setItem("user",newUser);
-savedUser=newUser;
-}
-
-if(newPass){
-localStorage.setItem("pass",newPass);
-savedPass=newPass;
-}
-
-if(logo){
-document.getElementById("logoPreview").src=logo;
-localStorage.setItem("logo",logo);
-}
-
-alert("Saved");
-
-}
-
-let savedLogo=localStorage.getItem("logo");
-
-if(savedLogo){
-document.getElementById("logoPreview").src=savedLogo;
-}
-
-function changeLanguage(){
-
-let lang=document.getElementById("language").value;
-
-if(lang==="mm"){
-
-document.getElementById("title").innerText="လစာစနစ်";
-document.getElementById("attendanceText").innerText="အလုပ်ဆင်းရက်";
-document.getElementById("nameText").innerText="အမည်";
-document.getElementById("presentText").innerText="ဆင်း";
-document.getElementById("absentText").innerText="ပျက်";
-document.getElementById("salaryText").innerText="လစာ";
-document.getElementById("roomText").innerText="အခန်းခ";
-document.getElementById("foodText").innerText="စားစရိတ်";
-document.getElementById("debtText").innerText="အကြွေး";
-document.getElementById("fuelText").innerText="ဆီဖိုး";
-document.getElementById("otherText").innerText="အသုံးစရိတ်";
-document.getElementById("finalText").innerText="ကျန်ငွေ";
-document.getElementById("settingText").innerText="ဆက်တင်";
-
-}else{
-
-document.getElementById("title").innerText="Salary System";
-document.getElementById("attendanceText").innerText="Attendance";
-document.getElementById("nameText").innerText="Name";
-document.getElementById("presentText").innerText="Present";
-document.getElementById("absentText").innerText="Absent";
-document.getElementById("salaryText").innerText="Salary";
-document.getElementById("roomText").innerText="Room";
-document.getElementById("foodText").innerText="Food";
-document.getElementById("debtText").innerText="Debt";
-document.getElementById("fuelText").innerText="Fuel";
-document.getElementById("otherText").innerText="Other";
-document.getElementById("finalText").innerText="Final";
-document.getElementById("settingText").innerText="Settings";
-
-}
-
-}
+createCalendar();
 
 renderTable();
 
