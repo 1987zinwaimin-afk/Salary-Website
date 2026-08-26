@@ -33,7 +33,7 @@ function loadLiveShare(){
   if(document.getElementById('salaryLiveShareScript'))return;
   const s=document.createElement('script');
   s.id='salaryLiveShareScript';
-  s.src='share.js?v=live1';
+  s.src='share.js?v=live2';
   s.async=true;
   document.head.appendChild(s);
 }
