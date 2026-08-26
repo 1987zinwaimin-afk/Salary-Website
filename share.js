@@ -2,13 +2,20 @@
 'use strict';
 
 const STORE='salary_manager_v3';
+const STORE_TS='salary_manager_v3_updated_at';
 const SHARE_PATH='/share.html#';
 const SHARE_MAP='salary_live_share_tokens_v1';
 const OWNER_KEY='salary_live_owner_token_v1';
 const SUPABASE_URL='https://lsnmcdzupctwizxldjhc.supabase.co';
 const SUPABASE_KEY='sb_publishable_iJQ9BpS19OtdaYXM31J3ag_Mhljn8Xi';
+const OWNER_EMAIL='1987zinwaimin@gmail.com';
 
 function readState(){try{return JSON.parse(localStorage.getItem(STORE)||'null')||{};}catch(e){return {};}}
+function writeState(s){try{localStorage.setItem(STORE,JSON.stringify(s));localStorage.setItem(STORE_TS,new Date().toISOString());return true;}catch(e){return false;}}
+function stateHasData(s){return !!s&&typeof s==='object'&&Object.keys(s).some(k=>{
+  const v=s[k];
+  return Array.isArray(v)?v.length>0:v!==null&&v!==undefined&&v!=='';
+});}
 function personName(l){return String(l?.name||l?.person||l?.employee||l?.borrower||l?.customer||l?.owner||'').trim();}
 function cleanName(s){return String(s||'').replace(/^[^\p{L}\p{N}]+/u,'').trim();}
 function loansFor(name){
@@ -69,14 +76,104 @@ function syncExisting(){
   Object.keys(m).forEach(name=>publish(name));
 }
 function watchState(){
-  let last='';
+  let last=localStorage.getItem(STORE)||'';
   setInterval(()=>{
     try{
       const raw=localStorage.getItem(STORE)||'{}';
-      if(raw!==last){last=raw;syncExisting();}
+      if(raw!==last){last=raw;localStorage.setItem(STORE_TS,new Date().toISOString());syncExisting();}
     }catch(e){}
   },1500);
 }
+
+/* Permanent Owner Data: keep Salary/Attendance/Debt data in Supabase,
+   so Logout, browser refresh, phone change, or localStorage loss does not
+   make the Owner's records disappear. */
+let ownerClient=null,ownerSyncStarted=false,ownerUploadTimer=null,ownerLastRaw='';
+function loadOwnerClient(){
+  if(window.supabase?.createClient){
+    if(!ownerClient) ownerClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'salary_owner_supabase_auth'}});
+    return Promise.resolve(ownerClient);
+  }
+  return new Promise((resolve,reject)=>{
+    let s=document.getElementById('salaryOwnerSupabaseSdk');
+    if(!s){s=document.createElement('script');s.id='salaryOwnerSupabaseSdk';s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';s.async=true;document.head.appendChild(s);}
+    s.addEventListener('load',()=>{if(window.supabase?.createClient){ownerClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'salary_owner_supabase_auth'}});resolve(ownerClient)}else reject(new Error('Supabase SDK unavailable'))},{once:true});
+    s.addEventListener('error',()=>reject(new Error('Supabase SDK load failed')),{once:true});
+  });
+}
+function ownerPayload(){
+  let state=readState();
+  return stateHasData(state)?state:{};
+}
+async function ownerServerState(c){
+  const {data,error}=await c.rpc('get_salary_owner_state');
+  if(error)throw error;
+  return data||{};
+}
+async function ownerUpload(c,state){
+  if(!stateHasData(state))return;
+  const {error}=await c.rpc('upsert_salary_owner_state',{p_state:state});
+  if(error)throw error;
+  localStorage.setItem(STORE_TS,new Date().toISOString());
+}
+async function ownerPersistentSync(){
+  if(location.pathname.includes('/share.html'))return;
+  try{
+    const c=await loadOwnerClient();
+    const {data:{session}}=await c.auth.getSession();
+    const email=String(session?.user?.email||'').trim().toLowerCase();
+    if(!session?.user||email!==OWNER_EMAIL)return;
+
+    const local=ownerPayload();
+    const localRaw=localStorage.getItem(STORE)||'';
+    const localTs=localStorage.getItem(STORE_TS)||'';
+    const server=await ownerServerState(c);
+    const remote=server?.state||{};
+    const remoteTs=server?.updated_at||'';
+
+    if(stateHasData(remote)&&!stateHasData(local)){
+      writeState(remote);
+      localStorage.setItem(STORE_TS,remoteTs||new Date().toISOString());
+    }else if(stateHasData(local)&&!stateHasData(remote)){
+      await ownerUpload(c,local);
+    }else if(stateHasData(local)&&stateHasData(remote)){
+      /* First migration: if this device has existing data but no local
+         timestamp yet, preserve the existing Owner data by uploading it.
+         After that, timestamps decide which copy is newer. */
+      if(!localTs){
+        await ownerUpload(c,local);
+      }else if(remoteTs&&new Date(remoteTs).getTime()>new Date(localTs).getTime()){
+        writeState(remote);
+        localStorage.setItem(STORE_TS,remoteTs);
+      }else{
+        await ownerUpload(c,local);
+      }
+    }
+    ownerLastRaw=localStorage.getItem(STORE)||'';
+    if(!ownerSyncStarted){
+      ownerSyncStarted=true;
+      setInterval(async()=>{
+        try{
+          const {data:{session:s}}=await c.auth.getSession();
+          if(!s?.user||String(s.user.email||'').trim().toLowerCase()!==OWNER_EMAIL)return;
+          const raw=localStorage.getItem(STORE)||'';
+          if(raw&&raw!==ownerLastRaw){
+            ownerLastRaw=raw;
+            clearTimeout(ownerUploadTimer);
+            ownerUploadTimer=setTimeout(()=>ownerUpload(c,readState()).catch(e=>console.warn('Owner persistent save:',e)),500);
+          }
+        }catch(e){}
+      },1200);
+    }
+  }catch(e){console.warn('Owner persistent sync:',e)}
+}
+function startOwnerPersistence(){
+  if(location.pathname.includes('/share.html'))return;
+  ownerPersistentSync();
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)ownerPersistentSync()});
+  window.addEventListener('focus',()=>ownerPersistentSync());
+}
+
 function style(){
   if(document.getElementById('shareFeatureStyle'))return;
   const st=document.createElement('style');st.id='shareFeatureStyle';
@@ -84,7 +181,7 @@ function style(){
   document.head.appendChild(st);
 }
 function boot(){
-  style();addButtons();
+  style();addButtons();startOwnerPersistence();
   const main=document.getElementById('main');
   if(main)new MutationObserver(()=>setTimeout(addButtons,0)).observe(main,{childList:true,subtree:true});
   syncExisting();watchState();
