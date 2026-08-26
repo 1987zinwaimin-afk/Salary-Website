@@ -1,655 +1,83 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Salary System</title>
-
 <style>
-body{
-font-family:Arial;
-background:#f2f5ff;
-margin:0;
-padding:20px;
-}
-
-.loginBox,
-.mainBox{
-max-width:1100px;
-margin:auto;
-background:white;
-padding:20px;
-border-radius:20px;
-box-shadow:0 0 10px rgba(0,0,0,0.1);
-}
-
-h1{
-margin:0 0 20px;
-}
-
-input,select,button{
-padding:10px;
-border-radius:10px;
-border:1px solid #ccc;
-margin:5px;
-}
-
-button{
-background:#2563eb;
-color:white;
-cursor:pointer;
-border:none;
-}
-
-.calendar{
-display:grid;
-grid-template-columns:repeat(7,1fr);
-gap:10px;
-margin-top:20px;
-}
-
-.day{
-background:white;
-padding:15px;
-text-align:center;
-border-radius:10px;
-cursor:pointer;
-border:1px solid #ddd;
-font-weight:bold;
-}
-
-.day.active{
-background:#2563eb;
-color:white;
-}
-
-table{
-width:100%;
-margin-top:20px;
-border-collapse:collapse;
-}
-
-table th,table td{
-border:1px solid #ddd;
-padding:10px;
-text-align:center;
-}
-
-.topBar{
-display:flex;
-justify-content:space-between;
-flex-wrap:wrap;
-gap:10px;
-}
-
-.settingBox{
-margin-top:20px;
-padding:15px;
-border:1px solid #ddd;
-border-radius:15px;
-}
-
-.logo{
-width:80px;
-height:80px;
-border-radius:50%;
-object-fit:cover;
-display:block;
-margin:auto;
-}
-
-.hidden{
-display:none;
-}
+*{box-sizing:border-box}body{font-family:Arial,sans-serif;background:#f2f5ff;margin:0;padding:14px;color:#172033}.loginBox,.mainBox{max-width:1100px;margin:auto;background:#fff;padding:20px;border-radius:20px;box-shadow:0 6px 24px rgba(0,0,0,.08)}h1{margin:0 0 16px}input,select,button{padding:11px;border-radius:10px;border:1px solid #ccd3df;margin:4px;font-size:15px}button{background:#2563eb;color:#fff;cursor:pointer;border:0;font-weight:600}.hidden{display:none}.topBar{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}.settingBox,.summary{margin-top:18px;padding:15px;border:1px solid #e1e5ec;border-radius:15px}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:12px}.day{min-height:76px;background:#fff;padding:8px;border-radius:12px;border:2px solid #e1e5ec;cursor:pointer;text-align:center}.day .date{font-size:12px;color:#667085}.day .status{margin-top:8px;font-size:13px;font-weight:700}.day.attend{background:#e8f1ff;border-color:#2563eb}.day.absent{background:#ffe8e8;border-color:#ef4444}.day.off{background:#fff4d6;border-color:#f59e0b}.day.leave{background:#eee8ff;border-color:#7c3aed}.legend{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.legend span{padding:7px 10px;border-radius:9px;font-size:13px;font-weight:700}.lgA{background:#e8f1ff}.lgX{background:#ffe8e8}.lgO{background:#fff4d6}.lgL{background:#eee8ff}.summaryGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.card{padding:12px;border-radius:12px;background:#f7f8fb}.card b{display:block;font-size:20px;margin-top:5px}table{width:100%;margin-top:18px;border-collapse:collapse;display:block;overflow-x:auto}th,td{border:1px solid #ddd;padding:9px;text-align:center;white-space:nowrap}th{background:#f5f7fb}.danger{background:#dc2626}.secondary{background:#475569}.logo{width:80px;height:80px;border-radius:50%;object-fit:cover;display:block;margin:auto}.muted{color:#667085;font-size:13px}@media(max-width:700px){body{padding:8px}.mainBox{padding:12px}.calendar{gap:5px}.day{min-height:72px;padding:5px}.day .status{font-size:11px}.summaryGrid{grid-template-columns:repeat(2,1fr)}input,select,button{max-width:100%}}
 </style>
 </head>
-
 <body>
-
-<!-- LOGIN -->
-
 <div class="loginBox" id="loginPage">
-
-<img id="loginLogo"
-class="logo"
-src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-
-<h1 id="loginTitle">Login</h1>
-
+<img id="loginLogo" class="logo" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+<h1 id="loginTitle">Salary System</h1>
 <input type="text" id="username" placeholder="Username"><br>
-
 <input type="password" id="password" placeholder="Password"><br>
-
 <button onclick="login()">Login</button>
-
+<p class="muted">Default: admin / 1234</p>
 </div>
-
-<!-- MAIN -->
 
 <div class="mainBox hidden" id="mainPage">
-
 <div class="topBar">
-
+<div><h1 id="title">လစာစနစ်</h1><select id="language" onchange="changeLanguage()"><option value="mm">မြန်မာ</option><option value="en">English</option></select></div>
 <div>
-<h1 id="title">Salary System</h1>
+<select id="employee" onchange="changeEmployee()"><option>Zin Wai Min</option><option>Khom</option><option>Zin Min Thu</option></select><br>
+<label>လစာကာလစတင်လ</label><input type="month" id="monthYear" onchange="loadEmployee()"><br>
+<label>တစ်ရက်လစာ</label><input type="number" id="salaryInput" min="0" step="0.01" placeholder="500" oninput="saveCurrent()">
+</div></div>
 
-<select id="language" onchange="changeLanguage()">
-<option value="en">English</option>
-<option value="mm">မြန်မာ</option>
-</select>
-</div>
-
-<div>
-
-<select id="employee" onchange="changeEmployee()">
-<option>Zin Wai Min</option>
-<option>Khom</option>
-<option>Zin Min Thu</option>
-</select>
-
-<br>
-
-<input type="month" id="monthYear">
-
-<br>
-
-<input type="number"
-id="salaryInput"
-placeholder="Salary">
-
-</div>
-
-</div>
-
-<h2 id="attendanceText">Attendance</h2>
-
+<div class="summary">
+<h2>အလုပ်ဆင်းရက် သတ်မှတ်ခြင်း</h2>
+<p class="muted">Calendar ထဲက ရက်တစ်ရက်ကို နှိပ်တိုင်း — မသတ်မှတ် → အလုပ်ဆင်း → ပျက် → နား → ခွင့် → မသတ်မှတ် အစီအစဉ်နဲ့ ပြောင်းပါမယ်။</p>
+<div class="legend"><span class="lgA">🔵 အလုပ်ဆင်း</span><span class="lgX">🔴 ပျက်ရက်</span><span class="lgO">🟡 နားရက်</span><span class="lgL">🟣 ခွင့်</span></div>
 <div class="calendar" id="calendar"></div>
-
-<h2 id="expenseText">Expenses</h2>
-
-<input type="number" id="room" placeholder="Room">
-<input type="number" id="food" placeholder="Food">
-<input type="number" id="debt" placeholder="Debt">
-<input type="number" id="fuel" placeholder="Fuel">
-<input type="number" id="other" placeholder="Other">
-
-<table>
-
-<thead>
-
-<tr>
-<th id="nameText">Name</th>
-<th id="salaryText">Salary</th>
-<th id="dayText">Days</th>
-<th id="roomText">Room</th>
-<th id="foodText">Food</th>
-<th id="debtText">Debt</th>
-<th id="fuelText">Fuel</th>
-<th id="otherText">Other</th>
-<th id="finalText">Final</th>
-<th>Edit</th>
-<th>Delete</th>
-</tr>
-
-</thead>
-
-<tbody id="tableBody"></tbody>
-
-</table>
-
-<!-- SETTINGS -->
-
-<div class="settingBox">
-
-<h2>Settings</h2>
-
-<input type="text"
-id="newUser"
-placeholder="New Username">
-
-<input type="password"
-id="newPass"
-placeholder="New Password">
-
-<button onclick="saveSettings()">
-Save Login
-</button>
-
-<br><br>
-
-<input type="text"
-id="logoUrl"
-placeholder="Logo Image URL">
-
-<button onclick="changeLogo()">
-Change Logo
-</button>
-
 </div>
 
+<div class="summary"><h2>လစာအကျဉ်းချုပ်</h2><div class="summaryGrid">
+<div class="card">အလုပ်ဆင်းရက်<b id="attendCount">0</b></div>
+<div class="card">ပျက်ရက်<b id="absentCount">0</b></div>
+<div class="card">နားရက်<b id="offCount">0</b></div>
+<div class="card">ခွင့်ရက်<b id="leaveCount">0</b></div>
+<div class="card">အခြေခံလစာ<b id="baseSalary">0</b></div>
+<div class="card">အပိုငွေ / OT<b id="bonusValue">0</b></div>
+<div class="card">နုတ်ငွေ<b id="deductionValue">0</b></div>
+<div class="card">ရရှိမည့်လစာ<b id="finalSalary">0</b></div>
+</div></div>
+
+<div class="settingBox"><h2>အသုံးစရိတ် / နုတ်ငွေ</h2>
+<input type="number" id="room" placeholder="အခန်းခ" oninput="saveCurrent()"><input type="number" id="food" placeholder="စားစရိတ်" oninput="saveCurrent()"><input type="number" id="debt" placeholder="အကြွေး" oninput="saveCurrent()"><input type="number" id="fuel" placeholder="ဆီဖိုး" oninput="saveCurrent()"><input type="number" id="other" placeholder="အခြား" oninput="saveCurrent()"><br>
+<input type="number" id="bonus" placeholder="အပိုငွေ / OT" oninput="saveCurrent()"><input type="number" id="manualDeduction" placeholder="အခြားနုတ်ငွေ" oninput="saveCurrent()">
+</div>
+
+<table><thead><tr><th>အမည်</th><th>လစာကာလ</th><th>တစ်ရက်လစာ</th><th>အလုပ်ဆင်း</th><th>ပျက်</th><th>နား</th><th>ခွင့်</th><th>အခြေခံလစာ</th><th>နုတ်ငွေ</th><th>အပို</th><th>ရရှိမည့်လစာ</th><th>လုပ်ဆောင်ချက်</th></tr></thead><tbody id="tableBody"></tbody></table>
+
+<div class="settingBox"><h2>Settings</h2><input type="text" id="newUser" placeholder="New Username"><input type="password" id="newPass" placeholder="New Password"><button onclick="saveSettings()">Save Login</button><br><input type="text" id="logoUrl" placeholder="Logo Image URL"><button onclick="changeLogo()">Change Logo</button><button class="secondary" onclick="logout()">Logout</button></div>
 </div>
 
 <script>
-
-let savedUser =
-localStorage.getItem("username") || "admin";
-
-let savedPass =
-localStorage.getItem("password") || "1234";
-
-let employees =
-JSON.parse(localStorage.getItem("employees")) ||
-
-{
-
-"Zin Wai Min":{
-salary:5000,
-days:[],
-room:0,
-food:0,
-debt:0,
-fuel:0,
-other:0
-},
-
-"Khom":{
-salary:7000,
-days:[],
-room:0,
-food:0,
-debt:0,
-fuel:0,
-other:0
-},
-
-"Zin Min Thu":{
-salary:6000,
-days:[],
-room:0,
-food:0,
-debt:0,
-fuel:0,
-other:0
-}
-
-};
-
-function saveEmployees(){
-localStorage.setItem(
-"employees",
-JSON.stringify(employees)
-);
-}
-
-function login(){
-
-let u =
-document.getElementById("username").value;
-
-let p =
-document.getElementById("password").value;
-
-if(u===savedUser && p===savedPass){
-
-document.getElementById("loginPage")
-.classList.add("hidden");
-
-document.getElementById("mainPage")
-.classList.remove("hidden");
-
-loadEmployee();
-createCalendar();
-renderTable();
-
-}else{
-alert("Wrong Username or Password");
-}
-
-}
-
-function currentEmployee(){
-return document.getElementById("employee").value;
-}
-
-function loadEmployee(){
-
-let emp =
-employees[currentEmployee()];
-
-document.getElementById("salaryInput").value =
-emp.salary;
-
-document.getElementById("room").value =
-emp.room || "";
-
-document.getElementById("food").value =
-emp.food || "";
-
-document.getElementById("debt").value =
-emp.debt || "";
-
-document.getElementById("fuel").value =
-emp.fuel || "";
-
-document.getElementById("other").value =
-emp.other || "";
-
-createCalendar();
-renderTable();
-}
-
-function changeEmployee(){
-loadEmployee();
-}
-
-function createCalendar(){
-
-let cal =
-document.getElementById("calendar");
-
-cal.innerHTML="";
-
-let emp =
-employees[currentEmployee()];
-
-for(let i=1;i<=31;i++){
-
-let div =
-document.createElement("div");
-
-div.className="day";
-
-if(emp.days.includes(i)){
-div.classList.add("active");
-}
-
-div.innerText=i;
-
-div.onclick=function(){
-
-if(emp.days.includes(i)){
-
-emp.days=
-emp.days.filter(d=>d!==i);
-
-}else{
-
-emp.days.push(i);
-
-}
-
-saveEmployees();
-
-createCalendar();
-
-renderTable();
-
-};
-
-cal.appendChild(div);
-
-}
-
-}
-
-document.getElementById("salaryInput")
-.addEventListener("input",function(){
-
-employees[currentEmployee()].salary =
-Number(this.value);
-
-saveEmployees();
-renderTable();
-
-});
-
-["room","food","debt","fuel","other"]
-.forEach(id=>{
-
-document.getElementById(id)
-.addEventListener("input",function(){
-
-employees[currentEmployee()][id] =
-Number(this.value);
-
-saveEmployees();
-
-renderTable();
-
-});
-
-});
-
-function renderTable(){
-
-let body =
-document.getElementById("tableBody");
-
-body.innerHTML="";
-
-let empName =
-currentEmployee();
-
-let emp =
-employees[empName];
-
-let finalSalary =
-
-(emp.salary * emp.days.length)
-
--
-
-(emp.room +
-emp.food +
-emp.debt +
-emp.fuel +
-emp.other);
-
-body.innerHTML += `
-
-<tr>
-
-<td>${empName}</td>
-
-<td>${emp.salary}</td>
-
-<td>${emp.days.length}</td>
-
-<td>${emp.room}</td>
-
-<td>${emp.food}</td>
-
-<td>${emp.debt}</td>
-
-<td>${emp.fuel}</td>
-
-<td>${emp.other}</td>
-
-<td>${finalSalary}</td>
-
-<td>
-<button onclick="editData()">
-Edit
-</button>
-</td>
-
-<td>
-<button onclick="deleteData()">
-Delete
-</button>
-</td>
-
-</tr>
-
-`;
-
-}
-
-function editData(){
-
-loadEmployee();
-
-alert("Edit Ready");
-
-}
-
-function deleteData(){
-
-if(confirm("Delete Data?")){
-
-employees[currentEmployee()] = {
-
-salary:0,
-days:[],
-room:0,
-food:0,
-debt:0,
-fuel:0,
-other:0
-
-};
-
-saveEmployees();
-
-loadEmployee();
-
-}
-
-}
-
-function saveSettings(){
-
-let newUser =
-document.getElementById("newUser").value;
-
-let newPass =
-document.getElementById("newPass").value;
-
-if(newUser){
-localStorage.setItem("username",newUser);
-savedUser=newUser;
-}
-
-if(newPass){
-localStorage.setItem("password",newPass);
-savedPass=newPass;
-}
-
-alert("Saved");
-
-}
-
-function changeLogo(){
-
-let url =
-document.getElementById("logoUrl").value;
-
-if(url){
-
-document.getElementById("loginLogo").src=url;
-
-localStorage.setItem("logo",url);
-
-}
-
-}
-
-let savedLogo =
-localStorage.getItem("logo");
-
-if(savedLogo){
-
-document.getElementById("loginLogo").src =
-savedLogo;
-
-}
-
-function changeLanguage(){
-
-let lang =
-document.getElementById("language").value;
-
-if(lang==="mm"){
-
-document.getElementById("title").innerText =
-"လစာစနစ်";
-
-document.getElementById("attendanceText").innerText =
-"အလုပ်ဆင်းရက်";
-
-document.getElementById("expenseText").innerText =
-"အသုံးစရိတ်";
-
-document.getElementById("nameText").innerText =
-"အမည်";
-
-document.getElementById("salaryText").innerText =
-"လစာ";
-
-document.getElementById("dayText").innerText =
-"ရက်";
-
-document.getElementById("roomText").innerText =
-"အခန်းခ";
-
-document.getElementById("foodText").innerText =
-"စားစရိတ်";
-
-document.getElementById("debtText").innerText =
-"အကြွေး";
-
-document.getElementById("fuelText").innerText =
-"ဆီဖိုး";
-
-document.getElementById("otherText").innerText =
-"အခြား";
-
-document.getElementById("finalText").innerText =
-"ကျန်ငွေ";
-
-}else{
-
-document.getElementById("title").innerText =
-"Salary System";
-
-document.getElementById("attendanceText").innerText =
-"Attendance";
-
-document.getElementById("expenseText").innerText =
-"Expenses";
-
-document.getElementById("nameText").innerText =
-"Name";
-
-document.getElementById("salaryText").innerText =
-"Salary";
-
-document.getElementById("dayText").innerText =
-"Days";
-
-document.getElementById("roomText").innerText =
-"Room";
-
-document.getElementById("foodText").innerText =
-"Food";
-
-document.getElementById("debtText").innerText =
-"Debt";
-
-document.getElementById("fuelText").innerText =
-"Fuel";
-
-document.getElementById("otherText").innerText =
-"Other";
-
-document.getElementById("finalText").innerText =
-"Final";
-
-}
-
-}
-
+const defaultEmployees={"Zin Wai Min":{salary:500,days:{},room:0,food:0,debt:0,fuel:0,other:0,bonus:0,manualDeduction:0},"Khom":{salary:500,days:{},room:0,food:0,debt:0,fuel:0,other:0,bonus:0,manualDeduction:0},"Zin Min Thu":{salary:500,days:{},room:0,food:0,debt:0,fuel:0,other:0,bonus:0,manualDeduction:0}};
+let employees=JSON.parse(localStorage.getItem('employees')||'null')||defaultEmployees;
+for(const n in defaultEmployees){if(!employees[n]) employees[n]=structuredClone(defaultEmployees[n]); if(Array.isArray(employees[n].days)){const d={};employees[n].days.forEach(x=>d[String(x)]='attend');employees[n].days=d;} employees[n].days=employees[n].days||{};employees[n].salary=Number(employees[n].salary)||500;}
+let savedUser=localStorage.getItem('username')||'admin',savedPass=localStorage.getItem('password')||'1234';
+const statuses=['','attend','absent','off','leave'];
+const statusText={attend:'🔵 အလုပ်ဆင်း',absent:'🔴 ပျက်',off:'🟡 နား',leave:'🟣 ခွင့်'};
+function saveEmployees(){localStorage.setItem('employees',JSON.stringify(employees));}
+function login(){const u=document.getElementById('username').value,p=document.getElementById('password').value;if(u===savedUser&&p===savedPass){loginPage.classList.add('hidden');mainPage.classList.remove('hidden');if(!monthYear.value){const d=new Date();monthYear.value=d.getDate()>=26?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`:`${d.getFullYear()}-${String(d.getMonth()).padStart(2,'0')}`;}loadEmployee();}else alert('Username သို့မဟုတ် Password မှားနေပါတယ်');}
+function logout(){mainPage.classList.add('hidden');loginPage.classList.remove('hidden');}
+function currentEmployee(){return employee.value}
+function periodDates(){let [y,m]=monthYear.value.split('-').map(Number);if(!y||!m)return[];let start=new Date(y,m-1,26),end=new Date(y,m,25),a=[];for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1))a.push(new Date(d));return a;}
+function loadEmployee(){const e=employees[currentEmployee()];salaryInput.value=e.salary;['room','food','debt','fuel','other','bonus','manualDeduction'].forEach(id=>document.getElementById(id).value=e[id]||'');createCalendar();render();}
+function changeEmployee(){loadEmployee();}
+function saveCurrent(){const e=employees[currentEmployee()];e.salary=Number(salaryInput.value)||0;['room','food','debt','fuel','other','bonus','manualDeduction'].forEach(id=>e[id]=Number(document.getElementById(id).value)||0);saveEmployees();render();}
+function createCalendar(){const cal=document.getElementById('calendar');cal.innerHTML='';const e=employees[currentEmployee()];periodDates().forEach((date,index)=>{const key=date.toISOString().slice(0,10),s=e.days[key]||'';const div=document.createElement('div');div.className='day '+(s||'');div.innerHTML=`<div class="date">${date.toLocaleDateString('en-GB',{weekday:'short'})}</div><strong>${date.getDate()}/${date.getMonth()+1}</strong><div class="status">${statusText[s]||'နှိပ်ပြီး သတ်မှတ်'}</div>`;div.onclick=()=>{const next=statuses[(statuses.indexOf(e.days[key]||'')+1)%statuses.length];if(next)e.days[key]=next;else delete e.days[key];saveEmployees();createCalendar();render();};cal.appendChild(div);});}
+function totals(){const e=employees[currentEmployee()],v=Object.values(e.days||{}),att=v.filter(x=>x==='attend').length,abs=v.filter(x=>x==='absent').length,off=v.filter(x=>x==='off').length,leave=v.filter(x=>x==='leave').length,base=att*e.salary,ded=(e.room+e.food+e.debt+e.fuel+e.other+e.manualDeduction),final=base+e.bonus-ded;return{att,abs,off,leave,base,ded,bonus:e.bonus,final};}
+function render(){const t=totals();attendCount.textContent=t.attendCount||t.att;absentCount.textContent=t.abs;offCount.textContent=t.off;leaveCount.textContent=t.leave;baseSalary.textContent=t.base.toLocaleString();bonusValue.textContent=t.bonus.toLocaleString();deductionValue.textContent=t.ded.toLocaleString();finalSalary.textContent=t.final.toLocaleString();const e=employees[currentEmployee()],start=periodDates()[0],end=periodDates().at(-1);tableBody.innerHTML=`<tr><td>${currentEmployee()}</td><td>${start?start.toLocaleDateString('en-GB'):''} - ${end?end.toLocaleDateString('en-GB'):''}</td><td>${e.salary.toLocaleString()}</td><td>${t.att}</td><td>${t.abs}</td><td>${t.off}</td><td>${t.leave}</td><td>${t.base.toLocaleString()}</td><td>${t.ded.toLocaleString()}</td><td>${t.bonus.toLocaleString()}</td><td><b>${t.final.toLocaleString()}</b></td><td><button onclick="saveCurrent()">Save</button><button class="danger" onclick="resetMonth()">Reset</button></td></tr>`;}
+function resetMonth(){if(confirm('ဒီလ Attendance ကို အားလုံးဖျက်မလား?')){employees[currentEmployee()].days={};saveEmployees();createCalendar();render();}}
+function saveSettings(){const u=newUser.value,p=newPass.value;if(u){savedUser=u;localStorage.setItem('username',u)}if(p){savedPass=p;localStorage.setItem('password',p)}alert('Login Settings သိမ်းပြီးပါပြီ');}
+function changeLogo(){if(logoUrl.value){loginLogo.src=logoUrl.value;localStorage.setItem('logo',logoUrl.value)}}
+function changeLanguage(){}
+const logo=localStorage.getItem('logo');if(logo)loginLogo.src=logo;
 </script>
-
 </body>
 </html>
