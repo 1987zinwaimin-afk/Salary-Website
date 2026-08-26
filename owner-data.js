@@ -38,6 +38,15 @@ function loadLiveShare(){
   document.head.appendChild(s);
 }
 
+function loadEnhancements(){
+  if(document.getElementById('salaryEnhancementScript'))return;
+  const s=document.createElement('script');
+  s.id='salaryEnhancementScript';
+  s.src='salary-enhancements.js?v=20260826-1';
+  s.async=true;
+  document.head.appendChild(s);
+}
+
 function redirectUrl(){return location.origin+location.pathname}
 
 function style(){
@@ -113,6 +122,7 @@ async function boot(){
   style();
   startTextCleaner();
   loadLiveShare();
+  loadEnhancements();
   await loadSupabase().catch(()=>null);
   const ok=await handleOwnerOAuthReturn();
   addMenu();
