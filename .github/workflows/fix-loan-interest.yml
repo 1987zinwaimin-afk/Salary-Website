@@ -1,0 +1,44 @@
+name: Fix loan interest calculation and compact detail
+
+on:
+  push:
+    paths:
+      - ".fix-loan-interest-trigger"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fix-loan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch loan calculation and UI
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html'); s=p.read_text(encoding='utf-8')
+          old="function loanCalc(l){let p=Math.max(0,+l.principal||0),r=+l.rate||10,m=Math.max(0,+l.unpaidMonths||0),monthly=p*r/100,accrued=monthly*m,ip=+l.interestPaid||0,stop=+l.interestStop||0,out=Math.max(0,accrued-ip-stop),pp=+l.principalPaid||0,rp=Math.max(0,p-pp);return{currency:l.currency||'THB',monthly,accrued,interestPaid:ip,stop,outInterest:out,remainPrincipal:rp,total:rp+out}}"
+          new="function loanCalc(l){let p=Math.max(0,+l.principal||0),r=Math.max(0,+l.rate||10),monthly=p*r/100,elapsed=monthsFromDate(l.loanDate),ip=Math.max(0,+l.interestPaid||0),stop=Math.max(0,+l.interestStop||0),paidMonths=monthly>0?Math.min(elapsed,Math.floor(ip/monthly)):0,m=Math.max(0,elapsed-paidMonths),accrued=monthly*elapsed,out=Math.max(0,accrued-ip-stop),pp=Math.max(0,+l.principalPaid||0),rp=Math.max(0,p-pp);return{currency:l.currency||'THB',monthly,elapsed,paidMonths,unpaidMonths:m,accrued,interestPaid:ip,stop,outInterest:out,remainPrincipal:rp,total:rp+out}}"
+          if old not in s: raise SystemExit('loanCalc pattern missing')
+          s=s.replace(old,new)
+          old2='<tr><td>ချေးပြီးကြာချိန်</td><td class="right">${elapsed} လ</td></tr><tr><td>အတိုးမပေးသေးသောလ</td><td class="right">${l.unpaidMonths} လ</td></tr><tr><td>စုစုပေါင်းတက်ထားသောအတိုး</td><td class="right">${money(c.accrued,cur)}</td></tr>'
+          new2='<tr><td>ချေးပြီးကြာချိန်</td><td class="right">${c.elapsed} လ</td></tr><tr><td>အတိုးပေးပြီးလ</td><td class="right">${c.paidMonths} လ</td></tr><tr><td><b>အတိုးမပေးသေးသောလ</b></td><td class="right red"><b>${c.unpaidMonths} လ</b></td></tr><tr><td>မပေးသေးသောလအတိုး</td><td class="right red"><b>${money(c.monthly*c.unpaidMonths,cur)}</b></td></tr><tr><td>စုစုပေါင်းတက်ထားသောအတိုး</td><td class="right">${money(c.accrued,cur)}</td></tr>'
+          if old2 in s: s=s.replace(old2,new2)
+          s=s.replace('<label>အတိုးမပေးသေးသောလ</label><input id="em" class="control" type="number" value="${l.unpaidMonths}">','<label>အတိုးမပေးသေးသောလ (Auto)</label><input id="em" class="control" type="number" value="${loanCalc(l).unpaidMonths}" readonly>')
+          s=s.replace('<label>အတိုးမပေးသေးသောလ</label><input id="dm" class="control" type="number" min="0" value="0">','<label>အတိုးမပေးသေးသောလ (Auto)</label><input id="dm" class="control" type="number" min="0" value="0" readonly>')
+          s=s.replace('unpaidMonths:+dm.value||0,monthlyPayment','unpaidMonths:0,monthlyPayment').replace('unpaidMonths:+em.value||0,monthlyPayment','unpaidMonths:0,monthlyPayment')
+          if '/* LOAN DETAIL COMPACT V2 */' not in s:
+            css='''<style>/* LOAN DETAIL COMPACT V2 */
+          .sheet:has(.kpis){padding:14px 14px 16px;max-height:92vh;border-radius:22px}.sheet:has(.kpis) .sheethead{margin-bottom:6px}.sheet:has(.kpis) .sheethead h2{font-size:19px}.sheet:has(.kpis) .kpis{gap:7px}.sheet:has(.kpis) .kpi{padding:9px 10px;border-radius:13px}.sheet:has(.kpis) .kpi b{font-size:15px}.sheet:has(.kpis) .section{margin-top:8px}.sheet:has(.kpis) .table td{padding:6px 3px;font-size:12px}.sheet:has(.kpis) .bigbtn{padding:10px 11px;margin-top:6px;border-radius:12px;font-size:13px}</style>'''
+            s=s.replace('</head>',css+'</head>',1)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Fix automatic loan interest months and compact detail"
+          git push
