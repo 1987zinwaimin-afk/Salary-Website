@@ -11,7 +11,7 @@ let sdkPromise=null;
 
 function ensureSupabase(){
   if(window.supabase&&window.supabase.createClient){
-    if(!sb) sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:'salary_owner_supabase_auth'}});
+    if(!sb) sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:'salary_owner_supabase_auth'} });
     return sb;
   }
   return null;
@@ -27,6 +27,15 @@ function loadSupabase(){
     s.addEventListener('error',()=>reject(new Error('Supabase SDK load failed')),{once:true});
   });
   return sdkPromise;
+}
+
+function loadLiveShare(){
+  if(document.getElementById('salaryLiveShareScript'))return;
+  const s=document.createElement('script');
+  s.id='salaryLiveShareScript';
+  s.src='share.js?v=live1';
+  s.async=true;
+  document.head.appendChild(s);
 }
 
 function redirectUrl(){return location.origin+location.pathname}
@@ -49,7 +58,6 @@ function style(){
   `;document.head.appendChild(s);
 }
 
-/* Remove only the helper texts requested by the owner. */
 function removeRequestedHelperText(){
   const exact=[
     'Attendance ထဲမှာပဲ လစာသတ်မှတ်နိုင်ပါတယ်',
@@ -104,6 +112,7 @@ function addMenu(){const drawer=document.querySelector('.drawer');if(!drawer||dr
 async function boot(){
   style();
   startTextCleaner();
+  loadLiveShare();
   await loadSupabase().catch(()=>null);
   const ok=await handleOwnerOAuthReturn();
   addMenu();
