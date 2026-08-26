@@ -1,0 +1,50 @@
+name: Compact loan edit form
+
+on:
+  push:
+    paths:
+      - ".compact-loan-trigger"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  compact-loan-form:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compact loan add/edit UI
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("index.html")
+          s = p.read_text(encoding="utf-8")
+          marker = "/* COMPACT LOAN FORM V1 */"
+          if marker not in s:
+              css = '''<style>
+          /* COMPACT LOAN FORM V1 */
+          .sheet:has(#et),.sheet:has(#dt){padding:14px 14px 18px;border-radius:24px;max-height:92vh}
+          .sheet:has(#et) .sheethead,.sheet:has(#dt) .sheethead{margin-bottom:6px}
+          .sheet:has(#et) .sheethead h2,.sheet:has(#dt) .sheethead h2{margin:0;font-size:20px;line-height:1.2}
+          .sheet:has(#et) .formrow,.sheet:has(#dt) .formrow{margin:5px 0}
+          .sheet:has(#et) .formrow label,.sheet:has(#dt) .formrow label{font-size:10.5px;font-weight:700;margin:0 0 3px 2px;line-height:1.15}
+          .sheet:has(#et) .control,.sheet:has(#dt) .control{padding:9px 10px;min-height:42px;height:42px;border-radius:12px;font-size:14px;border-color:#dfe4ee}
+          .sheet:has(#et) .row,.sheet:has(#dt) .row{grid-template-columns:1fr 1fr;gap:7px}
+          .sheet:has(#et) .bigbtn,.sheet:has(#dt) .bigbtn{padding:11px 12px;margin-top:8px;border-radius:13px;font-size:13px}
+          .sheet:has(#et) .close,.sheet:has(#dt) .close{width:40px;height:40px;border-radius:13px;font-size:20px}
+          @media(max-width:360px){.sheet:has(#et),.sheet:has(#dt){padding:12px}.sheet:has(#et) .control,.sheet:has(#dt) .control{font-size:13px;padding:8px 9px}.sheet:has(#et) .row,.sheet:has(#dt) .row{gap:6px}}
+          </style>'''
+              s = s.replace("</head>", css + "</head>", 1)
+              p.write_text(s, encoding="utf-8")
+          PY
+
+      - name: Commit compact loan UI
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Compact loan add and edit form"
+          git push
