@@ -11,14 +11,7 @@ let sdkPromise=null;
 
 function ensureSupabase(){
   if(window.supabase&&window.supabase.createClient){
-    if(!sb) sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
-      auth:{
-        persistSession:true,
-        autoRefreshToken:true,
-        detectSessionInUrl:true,
-        storageKey:'salary_owner_supabase_auth'
-      }
-    });
+    if(!sb) sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:'salary_owner_supabase_auth'}});
     return sb;
   }
   return null;
@@ -29,13 +22,7 @@ function loadSupabase(){
   if(sdkPromise) return sdkPromise;
   sdkPromise=new Promise((resolve,reject)=>{
     let s=document.getElementById('supabaseOwnerSdk');
-    if(!s){
-      s=document.createElement('script');
-      s.id='supabaseOwnerSdk';
-      s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-      s.async=true;
-      document.head.appendChild(s);
-    }
+    if(!s){s=document.createElement('script');s.id='supabaseOwnerSdk';s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';s.async=true;document.head.appendChild(s)}
     s.addEventListener('load',()=>{const c=ensureSupabase();c?resolve(c):reject(new Error('Supabase SDK unavailable'))},{once:true});
     s.addEventListener('error',()=>reject(new Error('Supabase SDK load failed')),{once:true});
   });
@@ -62,15 +49,28 @@ function style(){
   `;document.head.appendChild(s);
 }
 
+/* Remove only the helper texts requested by the owner. */
+function removeRequestedHelperText(){
+  const exact=[
+    'Attendance ထဲမှာပဲ လစာသတ်မှတ်နိုင်ပါတယ်',
+    'ချေးငွေယူသူအမည်ကိုနှိပ်ပြီး ချေးငွေအမျိုးအစားများကိုကြည့်ပါ',
+    'အကြွေးစာရင်းကို အပေါ်မှာ အရင်ကြည့်ရန်'
+  ];
+  document.querySelectorAll('.pageTitle p').forEach(el=>{if(exact.includes(el.textContent.trim()))el.remove()});
+  document.querySelectorAll('label').forEach(el=>{if(el.textContent.trim()==='လစာကာလ')el.remove()});
+}
+function startTextCleaner(){
+  removeRequestedHelperText();
+  if(window.__salaryTextCleaner)return;
+  window.__salaryTextCleaner=new MutationObserver(()=>removeRequestedHelperText());
+  window.__salaryTextCleaner.observe(document.body,{childList:true,subtree:true});
+}
+
 function closeOwnerData(){const m=document.getElementById('modal');if(m){m.classList.add('hidden');m.innerHTML=''}}
 function showMsg(html){const x=document.getElementById('ownerLoginMsg');if(x)x.innerHTML=html}
 function waitMsg(t){showMsg('<div class="ownerWait">⏳ '+t+'</div>')}
 
-async function ownerLogout(){
-  try{const c=await loadSupabase();await c.auth.signOut()}catch(e){}
-  sessionStorage.removeItem(OWNER_INTENT_KEY);
-  closeOwnerData();
-}
+async function ownerLogout(){try{const c=await loadSupabase();await c.auth.signOut()}catch(e){}sessionStorage.removeItem(OWNER_INTENT_KEY);closeOwnerData()}
 
 async function handleOwnerOAuthReturn(){
   try{
@@ -78,67 +78,32 @@ async function handleOwnerOAuthReturn(){
     const {data:{session}}=await c.auth.getSession();
     if(!session?.user)return false;
     const email=String(session.user.email||'').trim().toLowerCase();
-    if(email!==OWNER_EMAIL){
-      await c.auth.signOut();
-      sessionStorage.removeItem(OWNER_INTENT_KEY);
-      if(document.getElementById('ownerLoginMsg'))showMsg('<div class="ownerError">❌ ဒီ Google Gmail ကို Owner အဖြစ် အသုံးပြုခွင့်မရှိပါ။</div>');
-      return false;
-    }
+    if(email!==OWNER_EMAIL){await c.auth.signOut();sessionStorage.removeItem(OWNER_INTENT_KEY);if(document.getElementById('ownerLoginMsg'))showMsg('<div class="ownerError">❌ ဒီ Google Gmail ကို Owner အဖြစ် အသုံးပြုခွင့်မရှိပါ။</div>');return false}
     sessionStorage.setItem(OWNER_INTENT_KEY,'1');
-    try{
-      const meta=session.user.user_metadata||{};
-      await c.from(OWNER_TABLE).upsert({
-        user_id:session.user.id,
-        owner_name:meta.full_name||meta.name||'Owner',
-        owner_email:email,
-        avatar_url:meta.avatar_url||meta.picture||'',
-        updated_at:new Date().toISOString()
-      },{onConflict:'user_id'});
-    }catch(e){console.warn('owner_data upsert:',e)}
+    try{const meta=session.user.user_metadata||{};await c.from(OWNER_TABLE).upsert({user_id:session.user.id,owner_name:meta.full_name||meta.name||'Owner',owner_email:email,avatar_url:meta.avatar_url||meta.picture||'',updated_at:new Date().toISOString()},{onConflict:'user_id'})}catch(e){console.warn('owner_data upsert:',e)}
     return true;
   }catch(e){console.error('Owner OAuth return:',e);return false}
 }
 
 async function ownerGoogleLogin(){
-  try{
-    const c=await loadSupabase();
-    waitMsg('Google Login ဖွင့်နေသည်...');
-    const {error}=await c.auth.signInWithOAuth({provider:'google',options:{redirectTo:redirectUrl(),queryParams:{prompt:'select_account'}}});
-    if(error)throw error;
-  }catch(e){console.error('Owner Google Login:',e);showMsg('<div class="ownerError">❌ Google Login မဖွင့်နိုင်သေးပါ။ Supabase ထဲမှာ Google Provider ကို Enable လုပ်ထားကြောင်း စစ်ပါ။</div>')}
+  try{const c=await loadSupabase();waitMsg('Google Login ဖွင့်နေသည်...');const {error}=await c.auth.signInWithOAuth({provider:'google',options:{redirectTo:redirectUrl(),queryParams:{prompt:'select_account'}}});if(error)throw error}
+  catch(e){console.error('Owner Google Login:',e);showMsg('<div class="ownerError">❌ Google Login မဖွင့်နိုင်သေးပါ။ Supabase ထဲမှာ Google Provider ကို Enable လုပ်ထားကြောင်း စစ်ပါ။</div>')}
 }
 
 async function openOwnerData(){
   const m=document.getElementById('modal');if(!m)return;
   m.className='modal';m.classList.remove('hidden');
   m.innerHTML=`<div class="sheet"><div class="sheethead"><h2>👑 Owner Data</h2><button class="close" onclick="closeOwnerData()">×</button></div><div id="ownerPanel" class="ownerCard"><div class="ownerAvatar">👤</div><div style="font-weight:800;text-align:center;margin:8px 0;font-size:20px">Owner Account</div><div id="ownerLoginMsg" class="ownerHint" style="margin-top:10px"></div></div></div>`;
-  try{
-    const c=await loadSupabase();
-    const {data:{session}}=await c.auth.getSession();
-    if(session?.user){
-      const email=String(session.user.email||'').trim().toLowerCase();
-      if(email===OWNER_EMAIL){
-        sessionStorage.setItem(OWNER_INTENT_KEY,'1');
-        const name=session.user.user_metadata?.full_name||session.user.user_metadata?.name||'Owner';
-        const panel=document.getElementById('ownerPanel');
-        if(panel)panel.innerHTML=`<div class="ownerAvatar">👑</div><div style="font-weight:800;text-align:center;margin:8px 0;font-size:20px">${name}</div><div class="ownerLogged">✅ Google Owner Login ဝင်ထားပြီးပါပြီ<br><span style="font-weight:600">${email}</span></div><button class="ownerLogout" onclick="ownerLogout()">🚪 Owner Logout</button>`;
-        return;
-      }
-    }
-    const panel=document.getElementById('ownerPanel');
-    if(panel)panel.innerHTML=`<div class="ownerAvatar">👤</div><div style="font-weight:800;text-align:center;margin:8px 0;font-size:20px">Owner Account</div><div class="ownerHint">Google Gmail နဲ့ Owner Login ဝင်ပါ။</div><button class="ownerGoogle" type="button" onclick="ownerGoogleLogin()"><span class="ownerGoogleIcon" aria-hidden="true">🌐</span><span>Continue with Google</span></button><div id="ownerLoginMsg" class="ownerHint" style="margin-top:10px"></div>`;
+  try{const c=await loadSupabase();const {data:{session}}=await c.auth.getSession();if(session?.user){const email=String(session.user.email||'').trim().toLowerCase();if(email===OWNER_EMAIL){sessionStorage.setItem(OWNER_INTENT_KEY,'1');const name=session.user.user_metadata?.full_name||session.user.user_metadata?.name||'Owner';const panel=document.getElementById('ownerPanel');if(panel)panel.innerHTML=`<div class="ownerAvatar">👑</div><div style="font-weight:800;text-align:center;margin:8px 0;font-size:20px">${name}</div><div class="ownerLogged">✅ Google Owner Login ဝင်ထားပြီးပါပြီ<br><span style="font-weight:600">${email}</span></div><button class="ownerLogout" onclick="ownerLogout()">🚪 Owner Logout</button>`;return}}
+    const panel=document.getElementById('ownerPanel');if(panel)panel.innerHTML=`<div class="ownerAvatar">👤</div><div style="font-weight:800;text-align:center;margin:8px 0;font-size:20px">Owner Account</div><div class="ownerHint">Google Gmail နဲ့ Owner Login ဝင်ပါ။</div><button class="ownerGoogle" type="button" onclick="ownerGoogleLogin()"><span class="ownerGoogleIcon" aria-hidden="true">🌐</span><span>Continue with Google</span></button><div id="ownerLoginMsg" class="ownerHint" style="margin-top:10px"></div>`;
   }catch(e){showMsg('<div class="ownerError">❌ Owner Login စစ်ဆေးရာမှာ ပြဿနာရှိပါတယ်။</div>')}
 }
 
-function addMenu(){
-  const drawer=document.querySelector('.drawer');if(!drawer||drawer.dataset.ownerReady)return;
-  const b=document.createElement('button');b.className='mi ownerBtn';b.type='button';b.innerHTML='👑 Owner Data';
-  b.onclick=function(){if(typeof closeMenu==='function')closeMenu();openOwnerData()};
-  drawer.insertBefore(b,drawer.lastElementChild);drawer.dataset.ownerReady='1';
-}
+function addMenu(){const drawer=document.querySelector('.drawer');if(!drawer||drawer.dataset.ownerReady)return;const b=document.createElement('button');b.className='mi ownerBtn';b.type='button';b.innerHTML='👑 Owner Data';b.onclick=function(){if(typeof closeMenu==='function')closeMenu();openOwnerData()};drawer.insertBefore(b,drawer.lastElementChild);drawer.dataset.ownerReady='1'}
 
 async function boot(){
   style();
+  startTextCleaner();
   await loadSupabase().catch(()=>null);
   const ok=await handleOwnerOAuthReturn();
   addMenu();
