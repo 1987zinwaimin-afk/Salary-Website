@@ -1,0 +1,35 @@
+name: Compact Dashboard
+on:
+  push:
+    paths:
+      - dashboard_compact.trigger
+permissions:
+  contents: write
+jobs:
+  compact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compact dashboard UI
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          s=p.read_text()
+          css='''.moneyGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.moneyCard{padding:11px 12px;border-radius:15px;background:#fff;border:1px solid #e5e8ed;box-shadow:0 5px 14px rgba(30,40,70,.06)}.moneyCard.green{border-top:4px solid #2f8f68}.moneyCard.red{border-top:4px solid #c95e43}.moneyCard.blue{border-top:4px solid #315776}.moneyCard .big{font-size:21px;font-weight:900;line-height:1.15;margin:3px 0 5px}.moneyLine{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid #f0f1f3;font-size:11px}.moneyLine:last-child{border-bottom:0}.moneyLine b{font-size:12px;text-align:right}.currency{font-weight:800}.dashMonth{margin-bottom:8px}.dashMonth .control{padding:9px 11px}.dashTitle{margin:10px 0 8px}.dashTitle h3{margin:0;font-size:16px}.dashTitle p{margin:2px 0 0;font-size:11px;color:var(--muted)}.dashActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.dashAction{padding:10px 11px;border-radius:14px;background:#fff;border:1px solid #e5e8ed;text-align:left;box-shadow:0 4px 12px rgba(30,40,70,.05);cursor:pointer}.dashAction b{font-size:13px}.dashAction small{display:block;margin-top:2px;color:var(--muted);font-size:10px}@media(max-width:560px){.moneyGrid{grid-template-columns:1fr}}'''
+          s=re.sub(r'\.moneyGrid\{.*?</style>',css+'</style>',s,count=1,flags=re.S)
+          dashboard='''function dashboardPage(){let c=salaryCalc(),bs=borrowers(),groups={};S.debts.forEach(l=>{let cur=l.currency||'THB',x=loanCalc(l);groups[cur]??={principal:0,total:0,interest:0,count:0};groups[cur].principal+=+l.principal||0;groups[cur].total+=x.total;groups[cur].interest+=x.outInterest;groups[cur].count++});let debtCards=Object.keys(groups).map(cur=>{let g=groups[cur];return `<div class="moneyCard red"><div class="muted">📒 ${currName(cur)}</div><div class="big">${money(g.total,cur)}</div><div class="moneyLine"><span>မူရင်း</span><b>${money(g.principal,cur)}</b></div><div class="moneyLine"><span>လက်ကျန်အတိုး</span><b>${money(g.interest,cur)}</b></div><div class="moneyLine"><span>အမျိုးအစား</span><b>${g.count} ခု</b></div></div>`}).join('');return head('🏠 Dashboard','လစာနဲ့ အကြွေးအခြေအနေကို တစ်ချက်ကြည့်ရန်')+`<div class="dashMonth"><label class="muted">လစာကာလ</label><input id="period" class="control" type="month" value="${S.period}"></div><div class="moneyGrid"><section class="moneyCard green"><div class="muted">💰 ဒီလ လစာ</div><div class="big">${money(c.final,'THB')}</div><div class="moneyLine"><span>အလုပ်ဆင်း</span><b>${c.attend} ရက်</b></div><div class="moneyLine"><span>တစ်ရက်လစာ</span><b>${money(S.daily,'THB')}</b></div><div class="moneyLine"><span>အပို / နုတ်</span><b>${money((+S.extra||0)-(+S.deductions||0),'THB')}</b></div></section><section class="moneyCard blue"><div class="muted">👤 ဝန်ထမ်း</div><div class="big">${esc(S.employee)}</div><div class="moneyLine"><span>လစာအခြေခံ</span><b>${money(c.base,'THB')}</b></div><div class="moneyLine"><span>ဝန်ထမ်းစုစုပေါင်း</span><b>${bs.length} ယောက်</b></div><button class="smallbtn" style="padding:7px 9px;font-size:11px;margin-top:5px" onclick="go('attendance')">📅 Attendance →</button></section></div><div class="dashTitle"><h3>📒 အကြွေးစာရင်း</h3><p>ထိုင်းဘတ် / မြန်မာကျပ် ခွဲပြီးပြထားသည်</p></div><div class="moneyGrid">${debtCards||`<div class="moneyCard"><span class="muted">အကြွေးစာရင်း မရှိသေးပါ</span></div>`}</div><div class="dashActions"><button class="dashAction" onclick="go('attendance')"><b>📅 Attendance</b><small>အလုပ်ဆင်းရက် စီမံရန်</small></button><button class="dashAction" onclick="go('debt')"><b>➕ အကြွေး</b><small>ချေးငွေ အသစ်ထည့်ရန်</small></button></div>`}'''
+          s=re.sub(r'function dashboardPage\(\).*?(?=function openBorrower)',dashboard,s,count=1,flags=re.S)
+          p.write_text(s)
+          PY
+      - name: Commit and clean up
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Make Dashboard compact and cleaner' || true
+          rm -f dashboard_compact.trigger .github/workflows/compact-dashboard.yml
+          git add -A
+          git commit -m 'Remove temporary dashboard updater' || true
+          git push
