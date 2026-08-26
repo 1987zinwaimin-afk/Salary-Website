@@ -10,21 +10,28 @@ const SUPABASE_KEY='sb_publishable_iJQ9BpS19OtdaYXM31J3ag_Mhljn8Xi';
 
 function readState(){try{return JSON.parse(localStorage.getItem(STORE)||'null')||{};}catch(e){return {};}}
 function personName(l){return String(l?.name||l?.person||l?.employee||l?.borrower||l?.customer||l?.owner||'').trim();}
-function loansFor(name){const s=readState();const arr=Array.isArray(s.debts)?s.debts:[];return arr.filter(l=>personName(l)===name).map(l=>JSON.parse(JSON.stringify(l)));}
+function cleanName(s){return String(s||'').replace(/^[^\p{L}\p{N}]+/u,'').trim();}
+function loansFor(name){
+  const s=readState();
+  const arr=Array.isArray(s.debts)?s.debts:[];
+  const target=cleanName(name);
+  return arr.filter(l=>cleanName(personName(l))===target).map(l=>JSON.parse(JSON.stringify(l)));
+}
 function mapRead(){try{return JSON.parse(localStorage.getItem(SHARE_MAP)||'{}')||{};}catch(e){return {};}}
 function mapWrite(x){try{localStorage.setItem(SHARE_MAP,JSON.stringify(x));}catch(e){}}
 function ownerToken(){let t=localStorage.getItem(OWNER_KEY);if(!t){t=crypto.randomUUID();localStorage.setItem(OWNER_KEY,t)}return t;}
-function tokenFor(name){const m=mapRead();if(!m[name]){m[name]=crypto.randomUUID();mapWrite(m)}return m[name];}
+function tokenFor(name){const m=mapRead();const key=cleanName(name);if(!m[key]){m[key]=crypto.randomUUID();mapWrite(m)}return m[key];}
 function shareUrl(name){return location.origin+SHARE_PATH+tokenFor(name);}
 
 async function publish(name){
-  const token=tokenFor(name);
-  const payload={name,loans:loansFor(name),updatedAt:new Date().toISOString()};
+  const clean=cleanName(name);
+  const token=tokenFor(clean);
+  const payload={name:clean,loans:loansFor(clean),updatedAt:new Date().toISOString()};
   try{
     const r=await fetch(SUPABASE_URL+'/rest/v1/rpc/upsert_salary_share',{
       method:'POST',
       headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'},
-      body:JSON.stringify({p_owner_token:ownerToken(),p_share_token:token,p_person_name:name,p_payload:payload})
+      body:JSON.stringify({p_owner_token:ownerToken(),p_share_token:token,p_person_name:clean,p_payload:payload})
     });
     if(!r.ok) throw new Error(await r.text());
     return true;
@@ -47,7 +54,8 @@ async function doShare(name){
 function addButtons(){
   document.querySelectorAll('.person').forEach(card=>{
     if(card.dataset.shareReady)return;
-    const name=(card.querySelector('b')?.textContent||card.textContent||'').trim().split('\n')[0].trim();
+    const raw=(card.querySelector('b')?.textContent||card.textContent||'').trim().split('\n')[0].trim();
+    const name=cleanName(raw);
     if(!name)return;
     const btn=document.createElement('button');
     btn.type='button';btn.className='sharePersonBtn';btn.textContent='↗ Live Share';
