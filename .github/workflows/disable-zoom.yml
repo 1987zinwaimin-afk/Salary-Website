@@ -1,0 +1,39 @@
+name: Disable website zoom
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  disable-zoom:
+    if: ${{ !contains(github.event.head_commit.message, 'Disable website zoom') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lock viewport and prevent pinch zoom
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          old = 'width=device-width,initial-scale=1,viewport-fit=cover'
+          new = 'width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover'
+          if old in s:
+              s = s.replace(old, new, 1)
+          elif 'user-scalable=no' not in s:
+              raise SystemExit('Viewport meta tag not found')
+          guard = '<script>(function(){function stop(e){if(e.ctrlKey||e.scale!==undefined){e.preventDefault();}}document.addEventListener(\'gesturestart\',stop,{passive:false});document.addEventListener(\'gesturechange\',stop,{passive:false});document.addEventListener(\'gestureend\',stop,{passive:false});document.addEventListener(\'wheel\',function(e){if(e.ctrlKey)e.preventDefault();},{passive:false});})();</script>'
+          if 'gesturestart' not in s:
+              s = s.replace('</body>', guard + '</body>', 1)
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit zoom lock
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Disable website zoom"
+          git push
