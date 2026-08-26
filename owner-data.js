@@ -14,9 +14,11 @@ function ensureSupabase(){
   if(window.supabase&&window.supabase.createClient){
     if(!sb) sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
       auth:{
-        persistSession:true,
+        /* Never persist the Owner session in localStorage/cookies.
+           A shared URL therefore cannot reuse the Owner's session. */
+        persistSession:false,
         autoRefreshToken:true,
-        detectSessionInUrl:false,
+        detectSessionInUrl:true,
         storageKey:'salary_owner_supabase_auth'
       }
     });
@@ -70,10 +72,14 @@ function switchOwnerMode(mode){
   showMsg('');
 }
 
+function ownerEmailValue(){
+  return String(document.getElementById('ownerEmailInput')?.value||'').trim().toLowerCase();
+}
+
 async function ownerRegister(){
   try{
     const c=await loadSupabase();
-    const email=String(document.getElementById('ownerEmailInput')?.value||'').trim().toLowerCase();
+    const email=ownerEmailValue();
     const p=String(document.getElementById('ownerPasswordInput')?.value||'');
     const cp=String(document.getElementById('ownerPasswordConfirm')?.value||'');
     if(email!==OWNER_EMAIL){showMsg('<div class="ownerError">❌ Owner Gmail မမှန်ပါ။</div>');return}
@@ -86,7 +92,6 @@ async function ownerRegister(){
       if(em.includes('already registered')||em.includes('already exists')||em.includes('user already registered')){
         showMsg('<div class="ownerError">⚠️ ဒီ Gmail နဲ့ Account ရှိပြီးသားပါ။ Gmail ကို Verify ပြီး Login ဝင်ပါ။</div>');
         switchOwnerMode('login');
-        const li=document.getElementById('ownerEmailInput');if(li)li.value=OWNER_EMAIL;
         return;
       }
       throw error;
@@ -105,7 +110,7 @@ async function ownerRegister(){
 async function ownerPasswordLogin(){
   try{
     const c=await loadSupabase();
-    const email=String(document.getElementById('ownerEmailInput')?.value||'').trim().toLowerCase();
+    const email=ownerEmailValue();
     const password=String(document.getElementById('ownerPasswordInputLogin')?.value||'');
     if(email!==OWNER_EMAIL){showMsg('<div class="ownerError">❌ Owner Gmail မမှန်ပါ။</div>');return}
     if(!password){showMsg('<div class="ownerError">❌ Owner Password ထည့်ပါ။</div>');return}
@@ -113,7 +118,7 @@ async function ownerPasswordLogin(){
     const {data,error}=await c.auth.signInWithPassword({email,password});
     if(error||!data?.user){
       const em=String(error?.message||'').toLowerCase();
-      if(em.includes('email not confirmed')){showMsg('<div class="ownerError">📧 Gmail ကို အရင် Verify လုပ်ပါ။ Gmail Verification ခလုတ်ကိုနှိပ်ပြီး Email ပြန်ပို့နိုင်ပါတယ်။</div>');return}
+      if(em.includes('email not confirmed')){showMsg('<div class="ownerError">📧 Gmail ကို အရင် Verify လုပ်ပါ။ Verification Email ကို ပြန်ပို့နိုင်ပါတယ်။</div>');return}
       showMsg('<div class="ownerError">❌ Gmail သို့မဟုတ် Password မမှန်ပါ။</div>');return;
     }
     sessionStorage.setItem(OWNER_INTENT_KEY,'1');
@@ -121,7 +126,7 @@ async function ownerPasswordLogin(){
       const meta=data.user.user_metadata||{};
       await c.from(OWNER_TABLE).upsert({user_id:data.user.id,owner_name:meta.full_name||meta.name||'Owner',owner_email:OWNER_EMAIL,avatar_url:meta.avatar_url||meta.picture||'',updated_at:new Date().toISOString()},{onConflict:'user_id'});
     }catch(e){console.warn('owner_data upsert:',e)}
-    showMsg('<div class="ownerSuccess">✅ Owner Login အောင်မြင်ပါပြီ။ Gmail Account ချိတ်ဆက်ပြီးပါပြီ။</div>');
+    showMsg('<div class="ownerSuccess">✅ Owner Login အောင်မြင်ပါပြီ။</div>');
     setTimeout(()=>closeOwnerData(),700);
   }catch(e){
     showMsg('<div class="ownerError">❌ Owner Login မအောင်မြင်ပါ။ Internet နဲ့ Supabase ကိုစစ်ပါ။</div>');
@@ -132,7 +137,7 @@ async function ownerPasswordLogin(){
 async function resendOwnerVerification(){
   try{
     const c=await loadSupabase();
-    const email=String(document.getElementById('ownerEmailInput')?.value||'').trim().toLowerCase();
+    const email=ownerEmailValue();
     if(email!==OWNER_EMAIL){showMsg('<div class="ownerError">❌ Owner Gmail မမှန်ပါ။</div>');return}
     waitMsg('Gmail Verification Email ပြန်ပို့နေသည်...');
     const {error}=await c.auth.resend({type:'signup',email:OWNER_EMAIL,options:{emailRedirectTo:redirectUrl()}});
@@ -147,7 +152,7 @@ async function resendOwnerVerification(){
 function openOwnerData(){
   const m=document.getElementById('modal');if(!m)return;
   m.className='modal';m.classList.remove('hidden');
-  m.innerHTML='<div class="sheet"><div class="sheethead"><h2>👑 Owner Data</h2><button class="close" onclick="closeOwnerData()">×</button></div><div class="ownerCard"><div class="ownerAvatar">👤</div><div style="font-weight:800;text-align:center;margin:8px 0;font-size:20px">Owner Account</div><div class="ownerHint">ဒီ Gmail နဲ့ Register → Gmail Verification → Login လုပ်ပါ။ Gmail link တစ်ခုတည်းနဲ့ Auto Login မလုပ်ပါ။</div><div class="ownerTabs"><button id="ownerTabReg" class="ownerTab active" onclick="switchOwnerMode(\'register\')">📝 Register</button><button id="ownerTabLogin" class="ownerTab" onclick="switchOwnerMode(\'login\')">🔐 Login</button></div><input id="ownerEmailInput" class="ownerField" type="email" autocomplete="username" inputmode="email" value="'+OWNER_EMAIL+'" placeholder="Owner Gmail"><div id="ownerRegisterBox"><input id="ownerPasswordInput" class="ownerField" type="password" autocomplete="new-password" placeholder="Password"><input id="ownerPasswordConfirm" class="ownerField" type="password" autocomplete="new-password" placeholder="Confirm Password"><button class="ownerBtnMain" onclick="ownerRegister()">📝 Owner Register</button><button class="ownerBtnAlt" onclick="resendOwnerVerification()">📧 Gmail Verification ပြန်ပို့ရန်</button></div><div id="ownerLoginBox" style="display:none"><input id="ownerPasswordInputLogin" class="ownerField" type="password" autocomplete="current-password" placeholder="Owner Password"><button class="ownerBtnMain" onclick="ownerPasswordLogin()">🔐 Owner Login</button><button class="ownerBtnAlt" onclick="resendOwnerVerification()">📧 Verification Email ပြန်ပို့ရန်</button></div><div id="ownerLoginMsg" class="ownerHint" style="margin-top:10px"></div></div></div>';
+  m.innerHTML='<div class="sheet"><div class="sheethead"><h2>👑 Owner Data</h2><button class="close" onclick="closeOwnerData()">×</button></div><div class="ownerCard"><div class="ownerAvatar">👤</div><div style="font-weight:800;text-align:center;margin:8px 0;font-size:20px">Owner Account</div><div class="ownerHint">Owner Gmail ကို ကိုယ်တိုင်ထည့်ပြီး Register / Verify / Login လုပ်ပါ။ Link ရရုံနဲ့ Auto Login မဖြစ်ပါ။</div><div class="ownerTabs"><button id="ownerTabReg" class="ownerTab active" onclick="switchOwnerMode(\'register\')">📝 Register</button><button id="ownerTabLogin" class="ownerTab" onclick="switchOwnerMode(\'login\')">🔐 Login</button></div><input id="ownerEmailInput" class="ownerField" type="email" autocomplete="username" inputmode="email" value="" placeholder="Owner Gmail"><div id="ownerRegisterBox"><input id="ownerPasswordInput" class="ownerField" type="password" autocomplete="new-password" placeholder="Password"><input id="ownerPasswordConfirm" class="ownerField" type="password" autocomplete="new-password" placeholder="Confirm Password"><button class="ownerBtnMain" onclick="ownerRegister()">📝 Owner Register</button><button class="ownerBtnAlt" onclick="resendOwnerVerification()">📧 Gmail Verification ပြန်ပို့ရန်</button></div><div id="ownerLoginBox" style="display:none"><input id="ownerPasswordInputLogin" class="ownerField" type="password" autocomplete="current-password" placeholder="Owner Password"><button class="ownerBtnMain" onclick="ownerPasswordLogin()">🔐 Owner Login</button><button class="ownerBtnAlt" onclick="resendOwnerVerification()">📧 Verification Email ပြန်ပို့ရန်</button></div><div id="ownerLoginMsg" class="ownerHint" style="margin-top:10px"></div></div></div>';
 }
 
 function addMenu(){
