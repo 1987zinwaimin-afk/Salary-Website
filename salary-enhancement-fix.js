@@ -1,0 +1,6 @@
+(function(){
+'use strict';
+try{
+  if(typeof S!=='undefined') window.S=S;
+}catch(e){}
+})();
