@@ -1,0 +1,51 @@
+name: Inject approval alert fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'approval-alert-fix.js'
+      - 'index.html'
+      - '.github/workflows/inject-approval-alert-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  inject:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Inject script tag into index
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          tag = '<script src="approval-alert-fix.js"></script>'
+          if tag not in s:
+              if '</body>' in s:
+                  s = s.replace('</body>', tag + '</body>', 1)
+              else:
+                  s += tag
+              p.write_text(s, encoding='utf-8')
+              print('Injected approval-alert-fix.js')
+          else:
+              print('Already injected')
+          PY
+
+      - name: Commit injected script tag
+        shell: bash
+        run: |
+          if git diff --quiet -- index.html; then
+            echo 'No index change needed'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Inject approval alert fix'
+          git push
