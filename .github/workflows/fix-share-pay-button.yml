@@ -1,0 +1,48 @@
+name: Fix Share Payment Button
+
+on:
+  push:
+    paths:
+      - '.share-pay-fix-trigger'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-share-page:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Patch share payment button
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('share.html')
+          s = p.read_text(encoding='utf-8')
+          marker = "</script>"
+          fix = r'''\n<script>\n// iPhone/Safari payment button hardening\n(function(){\n  function handleSharePayClick(e){\n    const b = e.target && e.target.closest ? e.target.closest('button[data-pay]') : null;\n    if(!b) return;\n    e.preventDefault();\n    e.stopImmediatePropagation();\n    const id = b.getAttribute('data-pay');\n    if(id && typeof window.openPay === 'function') window.openPay(id);\n  }\n  document.addEventListener('click', handleSharePayClick, true);\n  document.addEventListener('touchend', function(e){\n    const b = e.target && e.target.closest ? e.target.closest('button[data-pay]') : null;\n    if(!b) return;\n    e.preventDefault();\n    e.stopImmediatePropagation();\n    const id = b.getAttribute('data-pay');\n    if(id && typeof window.openPay === 'function') window.openPay(id);\n  }, {passive:false, capture:true});\n})();\n</script>\n'''
+          if 'iPhone/Safari payment button hardening' not in s:
+              idx = s.rfind(marker)
+              if idx < 0:
+                  raise SystemExit('share.html script closing tag not found')
+              s = s[:idx] + fix + s[idx:]
+          # Make the payment button explicitly tappable above visual layers.
+          css_marker = '</style>'
+          css_fix = '\n<style>button[data-pay]{position:relative;z-index:10;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent}</style>\n'
+          if 'button[data-pay]{position:relative' not in s:
+              idx = s.find(css_marker)
+              if idx < 0:
+                  raise SystemExit('style closing tag not found')
+              s = s[:idx+len(css_marker)] + css_fix + s[idx+len(css_marker):]
+          p.write_text(s, encoding='utf-8')
+
+      - name: Commit patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add share.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'fix share payment button tap handling'
+          git push
