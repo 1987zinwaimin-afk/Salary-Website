@@ -1,92 +1,31 @@
 (function(){
 'use strict';
-
-const STORE='salary_manager_v3';
-const STORE_TS='salary_manager_v3_updated_at';
-const SHARE_MAP='salary_live_share_tokens_v1';
-const OWNER_KEY='salary_live_owner_token_v1';
-const SUPABASE_URL='https://lsnmcdzupctwizxldjhc.supabase.co';
-const SUPABASE_KEY='sb_publishable_iJQ9BpS19OtdaYXM31J3ag_Mhljn8Xi';
-const OWNER_EMAIL='1987zinwaimin@gmail.com';
-
+const STORE='salary_manager_v3',STORE_TS='salary_manager_v3_updated_at',SHARE_MAP='salary_live_share_tokens_v1',OWNER_KEY='salary_live_owner_token_v1',STABLE_OWNER_KEY='salary_live_owner_token_v2';
+const SUPABASE_URL='https://lsnmcdzupctwizxldjhc.supabase.co',SUPABASE_KEY='sb_publishable_iJQ9BpS19OtdaYXM31J3ag_Mhljn8Xi',OWNER_EMAIL='1987zinwaimin@gmail.com';
+let ownerClient=null,ownerSyncStarted=false,ownerUploadTimer=null,ownerLastRaw='';
 function readState(){try{return JSON.parse(localStorage.getItem(STORE)||'null')||{};}catch(e){return {};}}
 function writeState(s){try{localStorage.setItem(STORE,JSON.stringify(s));localStorage.setItem(STORE_TS,new Date().toISOString());return true;}catch(e){return false;}}
 function stateHasData(s){return !!s&&typeof s==='object'&&Object.keys(s).some(k=>{const v=s[k];return Array.isArray(v)?v.length>0:v!==null&&v!==undefined&&v!=='';});}
 function personName(l){return String(l?.name||l?.person||l?.employee||l?.borrower||l?.customer||l?.owner||'').trim();}
 function cleanName(s){return String(s||'').replace(/^[^\p{L}\p{N}]+/u,'').trim();}
-function loansFor(name){const s=readState();const arr=Array.isArray(s.debts)?s.debts:[];const target=cleanName(name);return arr.filter(l=>cleanName(personName(l))===target).map(l=>JSON.parse(JSON.stringify(l)));}
-function mapRead(){
-  let m={};
-  try{m=JSON.parse(localStorage.getItem(SHARE_MAP)||'{}')||{};}catch(e){}
-  try{
-    const s=readState();
-    const remoteMap=s&&s._shareTokens;
-    if(remoteMap&&typeof remoteMap==='object'){
-      Object.keys(remoteMap).forEach(k=>{if(!m[k]&&remoteMap[k])m[k]=remoteMap[k];});
-      if(Object.keys(remoteMap).length&&!localStorage.getItem(SHARE_MAP))localStorage.setItem(SHARE_MAP,JSON.stringify(m));
-    }
-  }catch(e){}
-  return m;
-}
-function mapWrite(x){
-  try{localStorage.setItem(SHARE_MAP,JSON.stringify(x));const s=readState();s._shareTokens=x;writeState(s);}catch(e){}
-}
-function ownerToken(){
-  let t=localStorage.getItem(OWNER_KEY);
-  const s=readState();
-  if(!t&&s&&s._ownerShareToken)t=s._ownerShareToken;
-  if(!t){t=crypto.randomUUID();try{localStorage.setItem(OWNER_KEY,t);}catch(e){}try{s._ownerShareToken=t;writeState(s);}catch(e){}}
-  return t;
-}
-function tokenFor(name){const m=mapRead();const key=cleanName(name);if(!m[key]){m[key]=crypto.randomUUID();mapWrite(m)}return m[key];}
+function loansFor(name){const s=readState(),arr=Array.isArray(s.debts)?s.debts:[],target=cleanName(name);return arr.filter(l=>cleanName(personName(l))===target).map(l=>JSON.parse(JSON.stringify(l)));}
+function mapRead(){let m={};try{m=JSON.parse(localStorage.getItem(SHARE_MAP)||'{}')||{};}catch(e){}try{const s=readState(),remoteMap=s&&s._shareTokens;if(remoteMap&&typeof remoteMap==='object'){Object.keys(remoteMap).forEach(k=>{if(!m[k]&&remoteMap[k])m[k]=remoteMap[k];});if(Object.keys(remoteMap).length&&!localStorage.getItem(SHARE_MAP))localStorage.setItem(SHARE_MAP,JSON.stringify(m));}}catch(e){}return m;}
+function mapWrite(x){try{localStorage.setItem(SHARE_MAP,JSON.stringify(x));const s=readState();s._shareTokens=x;writeState(s);}catch(e){}}
+function ownerToken(){let stable=localStorage.getItem(STABLE_OWNER_KEY);if(stable)return stable;let t=localStorage.getItem(OWNER_KEY),s=readState();if(!t&&s&&s._ownerShareToken)t=s._ownerShareToken;if(!t){t=crypto.randomUUID();try{localStorage.setItem(OWNER_KEY,t);}catch(e){}try{s._ownerShareToken=t;writeState(s);}catch(e){}}return t;}
+function setStableOwnerToken(userId){const id=String(userId||'').trim();if(!id)return;try{localStorage.setItem(STABLE_OWNER_KEY,id);localStorage.setItem(OWNER_KEY,id);}catch(e){}const s=readState();s._ownerShareToken=id;writeState(s);}
+function tokenFor(name){const m=mapRead(),key=cleanName(name);if(!m[key]){m[key]=crypto.randomUUID();mapWrite(m)}return m[key];}
 function shareUrl(name){return location.origin+'/share.html#'+tokenFor(name);}
-
-async function publish(name){
-  const clean=cleanName(name);const token=tokenFor(clean);
-  const payload={name:clean,loans:loansFor(clean),updatedAt:new Date().toISOString()};
-  try{
-    const r=await fetch(SUPABASE_URL+'/rest/v1/rpc/upsert_salary_share',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'},body:JSON.stringify({p_owner_token:ownerToken(),p_share_token:token,p_person_name:clean,p_payload:payload})});
-    if(!r.ok)throw new Error(await r.text());
-    return true;
-  }catch(e){console.warn('Live Share sync failed',e);return false;}
-}
-async function doShare(name){
-  await publish(name);const url=shareUrl(name);
-  try{if(navigator.share)await navigator.share({title:name+' - အကြွေးစာရင်း',text:name+' ရဲ့ Live အကြွေးစာရင်း',url});else{await navigator.clipboard.writeText(url);alert('Live Share Link ကို Copy လုပ်ပြီးပါပြီ။');}}
-  catch(e){if(e&&e.name==='AbortError')return;try{await navigator.clipboard.writeText(url);alert('Live Share Link ကို Copy လုပ်ပြီးပါပြီ။')}catch(_){prompt('Live Share Link',url)}}
-}
-function addButtons(){
-  document.querySelectorAll('.person').forEach(card=>{if(card.dataset.shareReady)return;const raw=(card.querySelector('b')?.textContent||card.textContent||'').trim().split('\n')[0].trim();const name=cleanName(raw);if(!name)return;const btn=document.createElement('button');btn.type='button';btn.className='sharePersonBtn';btn.textContent='↗ Live Share';btn.onclick=e=>{e.preventDefault();e.stopPropagation();doShare(name)};card.appendChild(btn);card.dataset.shareReady='1';});
-}
-function syncExisting(){const m=mapRead();Object.keys(m).forEach(name=>publish(name));}
-function watchState(){
-  let last=localStorage.getItem(STORE)||'';
-  setInterval(()=>{try{const raw=localStorage.getItem(STORE)||'{}';if(raw!==last){last=raw;localStorage.setItem(STORE_TS,new Date().toISOString());syncExisting();}}catch(e){}},1000);
-}
-
-/* Permanent Owner Data: keep Salary/Attendance/Debt data in Supabase,
-   so Logout, browser refresh, phone change, or localStorage loss does not
-   make the Owner's records disappear. */
-let ownerClient=null,ownerSyncStarted=false,ownerUploadTimer=null,ownerLastRaw='';
-function loadOwnerClient(){
-  if(window.supabase?.createClient){if(!ownerClient)ownerClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'salary_owner_supabase_auth'}});return Promise.resolve(ownerClient);}
-  return new Promise((resolve,reject)=>{let s=document.getElementById('salaryOwnerSupabaseSdk');if(!s){s=document.createElement('script');s.id='salaryOwnerSupabaseSdk';s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';s.async=true;document.head.appendChild(s)}s.addEventListener('load',()=>{if(window.supabase?.createClient){ownerClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'salary_owner_supabase_auth'}});resolve(ownerClient)}else reject(new Error('Supabase SDK unavailable'))},{once:true});s.addEventListener('error',()=>reject(new Error('Supabase SDK load failed')),{once:true});});
-}
-function ownerPayload(){let state=readState();return stateHasData(state)?state:{};}
+async function loadOwnerClient(){if(window.supabase?.createClient){if(!ownerClient)ownerClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'salary_owner_supabase_auth'}});return ownerClient;}return new Promise((resolve,reject)=>{let s=document.getElementById('salaryOwnerSupabaseSdk');if(!s){s=document.createElement('script');s.id='salaryOwnerSupabaseSdk';s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';s.async=true;document.head.appendChild(s)}s.addEventListener('load',()=>{if(window.supabase?.createClient){ownerClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'salary_owner_supabase_auth'}});resolve(ownerClient)}else reject(new Error('Supabase SDK unavailable'))},{once:true});s.addEventListener('error',()=>reject(new Error('Supabase SDK load failed')),{once:true});});}
+async function adoptAuthenticatedOwnerToken(c){try{const {data:{session}}=await c.auth.getSession();const email=String(session?.user?.email||'').trim().toLowerCase();if(session?.user&&email===OWNER_EMAIL){setStableOwnerToken(session.user.id);return true}}catch(e){}return false;}
+async function publish(name){const clean=cleanName(name),token=tokenFor(clean),payload={name:clean,loans:loansFor(clean),updatedAt:new Date().toISOString()};try{const r=await fetch(SUPABASE_URL+'/rest/v1/rpc/upsert_salary_share',{method:'POST',headers:{apikey:SUPABASE_KEY,Authorization:'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'},body:JSON.stringify({p_owner_token:ownerToken(),p_share_token:token,p_person_name:clean,p_payload:payload})});if(!r.ok)throw new Error(await r.text());return true}catch(e){console.warn('Live Share sync failed',e);return false;}}
+async function doShare(name){await adoptAuthenticatedOwnerToken(await loadOwnerClient().catch(()=>null));await publish(name);const url=shareUrl(name);try{if(navigator.share)await navigator.share({title:name+' - အကြွေးစာရင်း',text:name+' ရဲ့ Live အကြွေးစာရင်း',url});else{await navigator.clipboard.writeText(url);alert('Live Share Link ကို Copy လုပ်ပြီးပါပြီ။')}}catch(e){if(e&&e.name==='AbortError')return;try{await navigator.clipboard.writeText(url);alert('Live Share Link ကို Copy လုပ်ပြီးပါပြီ.')}catch(_){prompt('Live Share Link',url)}}}
+function addButtons(){document.querySelectorAll('.person').forEach(card=>{if(card.dataset.shareReady)return;const raw=(card.querySelector('b')?.textContent||card.textContent||'').trim().split('\n')[0].trim(),name=cleanName(raw);if(!name)return;const btn=document.createElement('button');btn.type='button';btn.className='sharePersonBtn';btn.textContent='↗ Live Share';btn.onclick=e=>{e.preventDefault();e.stopPropagation();doShare(name)};card.appendChild(btn);card.dataset.shareReady='1';});}
+async function syncExisting(){await adoptAuthenticatedOwnerToken(await loadOwnerClient().catch(()=>null));const m=mapRead();await Promise.all(Object.keys(m).map(name=>publish(name)));}
+function watchState(){let last=localStorage.getItem(STORE)||'';setInterval(()=>{try{const raw=localStorage.getItem(STORE)||'{}';if(raw!==last){last=raw;localStorage.setItem(STORE_TS,new Date().toISOString());syncExisting();}}catch(e){}},1000);}
 async function ownerServerState(c){const {data,error}=await c.rpc('get_salary_owner_state');if(error)throw error;return data||{};}
 async function ownerUpload(c,state){if(!stateHasData(state))return;const {error}=await c.rpc('upsert_salary_owner_state',{p_state:state});if(error)throw error;localStorage.setItem(STORE_TS,new Date().toISOString());}
-async function ownerPersistentSync(){
-  if(location.pathname.includes('/share.html'))return;
-  try{
-    const c=await loadOwnerClient();const {data:{session}}=await c.auth.getSession();const email=String(session?.user?.email||'').trim().toLowerCase();if(!session?.user||email!==OWNER_EMAIL)return;
-    const local=ownerPayload();const localRaw=localStorage.getItem(STORE)||'';const localTs=localStorage.getItem(STORE_TS)||'';const server=await ownerServerState(c);const remote=server?.state||{};const remoteTs=server?.updated_at||'';
-    if(stateHasData(remote)&&!stateHasData(local)){writeState(remote);localStorage.setItem(STORE_TS,remoteTs||new Date().toISOString());}
-    else if(stateHasData(local)&&!stateHasData(remote)){await ownerUpload(c,local);}
-    else if(stateHasData(local)&&stateHasData(remote)){if(!localTs){await ownerUpload(c,local);}else if(remoteTs&&new Date(remoteTs).getTime()>new Date(localTs).getTime()){writeState(remote);localStorage.setItem(STORE_TS,remoteTs);}else{await ownerUpload(c,local);}}
-    ownerLastRaw=localStorage.getItem(STORE)||'';
-    if(!ownerSyncStarted){ownerSyncStarted=true;setInterval(async()=>{try{const {data:{session:s}}=await c.auth.getSession();if(!s?.user||String(s.user.email||'').trim().toLowerCase()!==OWNER_EMAIL)return;const raw=localStorage.getItem(STORE)||'';if(raw&&raw!==ownerLastRaw){ownerLastRaw=raw;clearTimeout(ownerUploadTimer);ownerUploadTimer=setTimeout(()=>ownerUpload(c,readState()).catch(e=>console.warn('Owner persistent save:',e)),350);}}catch(e){}},800);}
-  }catch(e){console.warn('Owner persistent sync:',e)}
-}
+async function ownerPersistentSync(){if(location.pathname.includes('/share.html'))return;try{const c=await loadOwnerClient();const {data:{session}}=await c.auth.getSession();const email=String(session?.user?.email||'').trim().toLowerCase();if(!session?.user||email!==OWNER_EMAIL)return;setStableOwnerToken(session.user.id);const local=ownerPayload(),localTs=localStorage.getItem(STORE_TS)||'',server=await ownerServerState(c),remote=server?.state||{},remoteTs=server?.updated_at||'';if(stateHasData(remote)&&!stateHasData(local)){writeState(remote);localStorage.setItem(STORE_TS,remoteTs||new Date().toISOString());}else if(stateHasData(local)&&!stateHasData(remote)){await ownerUpload(c,local);}else if(stateHasData(local)&&stateHasData(remote)){if(!localTs){await ownerUpload(c,local);}else if(remoteTs&&new Date(remoteTs).getTime()>new Date(localTs).getTime()){writeState(remote);localStorage.setItem(STORE_TS,remoteTs);}else{await ownerUpload(c,local);}}ownerLastRaw=localStorage.getItem(STORE)||'';if(!ownerSyncStarted){ownerSyncStarted=true;setInterval(async()=>{try{const {data:{session:s}}=await c.auth.getSession();if(!s?.user||String(s.user.email||'').trim().toLowerCase()!==OWNER_EMAIL)return;setStableOwnerToken(s.user.id);const raw=localStorage.getItem(STORE)||'';if(raw&&raw!==ownerLastRaw){ownerLastRaw=raw;clearTimeout(ownerUploadTimer);ownerUploadTimer=setTimeout(()=>ownerUpload(c,readState()).catch(e=>console.warn('Owner persistent save:',e)),350);syncExisting();}}catch(e){}},800);}}catch(e){console.warn('Owner persistent sync:',e)}}
+function ownerPayload(){const state=readState();return stateHasData(state)?state:{};}
 function startOwnerPersistence(){if(location.pathname.includes('/share.html'))return;ownerPersistentSync();document.addEventListener('visibilitychange',()=>{if(!document.hidden)ownerPersistentSync()});window.addEventListener('focus',()=>ownerPersistentSync());}
 function style(){if(document.getElementById('shareFeatureStyle'))return;const st=document.createElement('style');st.id='shareFeatureStyle';st.textContent='.sharePersonBtn{display:block;width:100%;margin-top:9px;padding:8px 10px;border-radius:11px;background:linear-gradient(135deg,#6948ff,#9a4dff);color:#fff;font-weight:800;font-size:11px;cursor:pointer}.sharePersonBtn:active{transform:scale(.98)}';document.head.appendChild(st);}
 function boot(){style();addButtons();startOwnerPersistence();const main=document.getElementById('main');if(main)new MutationObserver(()=>setTimeout(addButtons,0)).observe(main,{childList:true,subtree:true});syncExisting();watchState();}
