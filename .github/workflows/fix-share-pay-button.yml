@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.share-pay-fix-trigger'
+      - '.github/workflows/fix-share-pay-button.yml'
 
 permissions:
   contents: write
@@ -22,21 +23,31 @@ jobs:
           p = Path('share.html')
           s = p.read_text(encoding='utf-8')
 
-          marker = 'share-payment-modal-v3'
-          if marker not in s:
-              fix = r'''
+          start = s.find('<!-- share-payment-fix-start -->')
+          end = s.find('<!-- share-payment-fix-end -->')
+          if start >= 0 and end >= 0:
+              s = s[:start] + s[end + len('<!-- share-payment-fix-end -->'):]
+
+          fix = r'''<!-- share-payment-fix-start -->
+<style>
+#modal{z-index:10000!important}
+#modal .sheet{position:relative;z-index:10001}
+#modal input,#modal button{pointer-events:auto!important;touch-action:manipulation!important}
+.detail button.pay{position:relative;z-index:10010!important;pointer-events:auto!important;cursor:pointer!important;min-height:48px}
+</style>
 <script>
-// share-payment-modal-v3
+// Robust share payment fix
 (function(){
   function toast(msg){
     const old=document.querySelector('.toast'); if(old) old.remove();
     const d=document.createElement('div'); d.className='toast'; d.textContent=msg;
     document.body.appendChild(d); setTimeout(()=>d.remove(),3200);
   }
+
   window.openPay=function(id){
-    const loans=Array.isArray(window.current?.payload?.loans)
-      ? window.current.payload.loans : (typeof current!=='undefined' && Array.isArray(current?.payload?.loans) ? current.payload.loans : []);
-    const loan=loans.find(x=>String(x.id)===String(id));
+    const loans = (typeof current!=='undefined' && Array.isArray(current?.payload?.loans))
+      ? current.payload.loans : [];
+    const loan = loans.find(x=>String(x.id)===String(id));
     if(!loan){ toast('❌ ချေးငွေစာရင်း မတွေ့ပါ'); return; }
     const cur=loan.currency||'MMK';
     const old=document.getElementById('modal'); if(old) old.remove();
@@ -56,16 +67,16 @@ jobs:
       <div class="btns"><button type="button" class="cancel" id="payCancel">မလုပ်တော့ပါ</button><button type="button" class="send" id="paySend">Request ပို့မည်</button></div>
     </div>`;
     document.body.appendChild(d);
-    d.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>d.querySelector('#payAmount').value=b.dataset.q);
-    d.querySelector('#payCancel').onclick=()=>d.remove();
+    d.querySelectorAll('[data-q]').forEach(b=>b.addEventListener('click',()=>{d.querySelector('#payAmount').value=b.dataset.q}));
+    d.querySelector('#payCancel').addEventListener('click',()=>d.remove());
     d.addEventListener('click',e=>{if(e.target===d)d.remove()});
-    d.querySelector('#paySend').onclick=async()=>{
+    d.querySelector('#paySend').addEventListener('click',async()=>{
       const name=d.querySelector('#payName').value.trim()||'Guest';
       const amount=Number(d.querySelector('#payAmount').value);
       if(!amount||amount<=0){toast('ငွေပမာဏ ထည့်ပါ');return;}
       const btn=d.querySelector('#paySend'); btn.disabled=true; btn.textContent='ပို့နေသည်…';
       try{
-        const shareToken=typeof token!=='undefined'?token:(location.hash.slice(1).trim());
+        const shareToken=(typeof token!=='undefined'?token:(location.hash.slice(1).trim()));
         await rpc('submit_salary_payment_request',{
           p_share_token:shareToken,
           p_loan_id:String(id),
@@ -77,36 +88,37 @@ jobs:
         d.remove();
         toast('✅ Payment Request Owner ဆီ ပို့ပြီးပါပြီ');
         if(typeof getShare==='function' && typeof render==='function'){
-          try{ const fresh=await getShare(); render(fresh); }catch(e){}
+          try{render(await getShare())}catch(e){}
         }
       }catch(e){
         console.error(e); toast('❌ Request မပို့နိုင်ပါ');
         btn.disabled=false; btn.textContent='Request ပို့မည်';
       }
-    };
+    });
   };
+
+  function wire(){
+    const buttons=[...document.querySelectorAll('.detail button.pay')];
+    const loans=(typeof current!=='undefined' && Array.isArray(current?.payload?.loans))?current.payload.loans:[];
+    buttons.forEach((b,i)=>{
+      if(b.dataset.sharePayWired==='1') return;
+      b.dataset.sharePayWired='1';
+      b.type='button';
+      b.onclick=null;
+      const id=b.getAttribute('data-pay')||b.getAttribute('data-loan-id')||b.dataset.id||(loans[i]&&loans[i].id);
+      b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();window.openPay(id)},true);
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',wire); else wire();
+  new MutationObserver(wire).observe(document.body,{childList:true,subtree:true});
 })();
 </script>
+<!-- share-payment-fix-end -->
 '''
-              idx=s.rfind('</body>')
-              if idx<0: raise SystemExit('body closing tag not found')
-              s=s[:idx]+fix+s[idx:]
-
-          css_marker='share-payment-modal-css-v3'
-          if css_marker not in s:
-              css=r'''
-<style>
-/* share-payment-modal-css-v3 */
-#modal{z-index:10000}
-#modal .sheet{position:relative;z-index:10001}
-#modal input,#modal button{pointer-events:auto;touch-action:manipulation}
-#modal .btns button{min-height:46px}
-</style>
-'''
-              idx=s.find('</head>')
-              if idx<0: raise SystemExit('head closing tag not found')
-              s=s[:idx]+css+s[idx:]
-
+          idx=s.rfind('</body>')
+          if idx<0:
+              raise SystemExit('body closing tag not found')
+          s=s[:idx]+fix+s[idx:]
           p.write_text(s,encoding='utf-8')
 
       - name: Commit patch
@@ -115,5 +127,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add share.html
           git diff --cached --quiet && exit 0
-          git commit -m 'add working share payment request modal'
+          git commit -m 'make share payment button clickable'
           git push
