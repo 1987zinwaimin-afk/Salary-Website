@@ -15,4 +15,4 @@ window.openPayment=function(i){const l=current?.payload?.loans?.[i];if(!l)return
 window.quickPay=function(x){const i=document.getElementById('payAmount');i.value=(+i.value||0)+x;i.dispatchEvent(new Event('input'))};window.closePay=function(){document.getElementById('payModal')?.remove()};
 async function refresh(){try{const r=await fetchShare();if(r){current=r;render(r)}}catch(e){}}
 async function boot(){try{const row=await fetchShare();if(!row){render(null);return}render(row);await recordView(row)}catch(e){render(null)}setInterval(async()=>{try{const row=await fetchShare();if(!row)return;const sig=row.updated_at||'';if(sig!==lastUpdated){lastUpdated=sig;render(row)}}catch(e){}},2000)}boot();
-</script></body></html>
+</script><script src="share-payment-approval-v3.js?v=20260827-1"></script></body></html>
