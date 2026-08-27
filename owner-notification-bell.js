@@ -1,8 +1,10 @@
 (function(){
 'use strict';
-if(location.pathname.includes('/share.html'))return;
+const hash=location.hash.slice(1).trim();
+const isAppRoute=/^(dashboard|attendance|salary|debt|settings|login)$/i.test(hash);
+if(location.pathname.includes('/share.html') || (hash && !isAppRoute))return;
 const URL='https://lsnmcdzupctwizxldjhc.supabase.co',KEY='sb_publishable_iJQ9BpS19OtdaYXM31J3ag_Mhljn8Xi',TOK='salary_live_owner_token_v1';
-const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
 function token(){try{let t=localStorage.getItem(TOK);if(!t&&window.S?._ownerShareToken)t=window.S._ownerShareToken;if(!t){t=crypto.randomUUID();localStorage.setItem(TOK,t)}return t}catch(e){return ''}}
 async function rpc(name,body){const r=await fetch(URL+'/rest/v1/rpc/'+name,{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw Error(await r.text());return r.json()}
 let notes=[];
