@@ -1,6 +1,8 @@
 (function(){
 'use strict';
-const IS_SHARE=location.pathname.includes('/share.html') || /^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(location.hash.slice(1).trim());
+const hash=location.hash.slice(1).trim();
+const isAppRoute=/^(dashboard|attendance|salary|debt|settings|login)$/i.test(hash);
+const IS_SHARE=location.pathname.includes('/share.html') || (!!hash && !isAppRoute);
 if(!IS_SHARE)return;
 const URL='https://lsnmcdzupctwizxldjhc.supabase.co';
 const KEY='sb_publishable_iJQ9BpS19OtdaYXM31J3ag_Mhljn8Xi';
