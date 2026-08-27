@@ -21,22 +21,93 @@ jobs:
           from pathlib import Path
           p = Path('share.html')
           s = p.read_text(encoding='utf-8')
-          marker = "</script>"
-          fix = r'''\n<script>\n// iPhone/Safari payment button hardening\n(function(){\n  function handleSharePayClick(e){\n    const b = e.target && e.target.closest ? e.target.closest('button[data-pay]') : null;\n    if(!b) return;\n    e.preventDefault();\n    e.stopImmediatePropagation();\n    const id = b.getAttribute('data-pay');\n    if(id && typeof window.openPay === 'function') window.openPay(id);\n  }\n  document.addEventListener('click', handleSharePayClick, true);\n  document.addEventListener('touchend', function(e){\n    const b = e.target && e.target.closest ? e.target.closest('button[data-pay]') : null;\n    if(!b) return;\n    e.preventDefault();\n    e.stopImmediatePropagation();\n    const id = b.getAttribute('data-pay');\n    if(id && typeof window.openPay === 'function') window.openPay(id);\n  }, {passive:false, capture:true});\n})();\n</script>\n'''
-          if 'iPhone/Safari payment button hardening' not in s:
-              idx = s.rfind(marker)
-              if idx < 0:
-                  raise SystemExit('share.html script closing tag not found')
-              s = s[:idx] + fix + s[idx:]
-          # Make the payment button explicitly tappable above visual layers.
-          css_marker = '</style>'
-          css_fix = '\n<style>button[data-pay]{position:relative;z-index:10;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:transparent}</style>\n'
-          if 'button[data-pay]{position:relative' not in s:
-              idx = s.find(css_marker)
-              if idx < 0:
-                  raise SystemExit('style closing tag not found')
-              s = s[:idx+len(css_marker)] + css_fix + s[idx+len(css_marker):]
-          p.write_text(s, encoding='utf-8')
+
+          marker = 'share-payment-modal-v3'
+          if marker not in s:
+              fix = r'''
+<script>
+// share-payment-modal-v3
+(function(){
+  function toast(msg){
+    const old=document.querySelector('.toast'); if(old) old.remove();
+    const d=document.createElement('div'); d.className='toast'; d.textContent=msg;
+    document.body.appendChild(d); setTimeout(()=>d.remove(),3200);
+  }
+  window.openPay=function(id){
+    const loans=Array.isArray(window.current?.payload?.loans)
+      ? window.current.payload.loans : (typeof current!=='undefined' && Array.isArray(current?.payload?.loans) ? current.payload.loans : []);
+    const loan=loans.find(x=>String(x.id)===String(id));
+    if(!loan){ toast('❌ ချေးငွေစာရင်း မတွေ့ပါ'); return; }
+    const cur=loan.currency||'MMK';
+    const old=document.getElementById('modal'); if(old) old.remove();
+    const d=document.createElement('div'); d.id='modal';
+    d.innerHTML=`<div class="sheet">
+      <h2>💸 ငွေပေးချေမည်</h2>
+      <p>${esc(loan.name||loan.type||'ချေးငွေ')} · ${esc(cur)}</p>
+      <input id="payName" placeholder="ပေးချေသူအမည်" value="${esc(typeof viewerName==='function'?viewerName():'')}">
+      <input id="payAmount" inputmode="decimal" type="number" min="1" step="0.01" placeholder="ငွေပမာဏ (${esc(cur)})" style="margin-top:8px">
+      <div class="quick">
+        <button type="button" data-q="1000">1,000</button>
+        <button type="button" data-q="5000">5,000</button>
+        <button type="button" data-q="10000">10,000</button>
+        <button type="button" data-q="20000">20,000</button>
+      </div>
+      <div class="info">ငွေပေးချေမှုကို Owner ဆီ Approval Request အဖြစ် ပို့ပါမည်။ Owner လက်ခံပြီးမှ အကြွေးစာရင်းထဲသို့ ထည့်ပေးပါမည်။</div>
+      <div class="btns"><button type="button" class="cancel" id="payCancel">မလုပ်တော့ပါ</button><button type="button" class="send" id="paySend">Request ပို့မည်</button></div>
+    </div>`;
+    document.body.appendChild(d);
+    d.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>d.querySelector('#payAmount').value=b.dataset.q);
+    d.querySelector('#payCancel').onclick=()=>d.remove();
+    d.addEventListener('click',e=>{if(e.target===d)d.remove()});
+    d.querySelector('#paySend').onclick=async()=>{
+      const name=d.querySelector('#payName').value.trim()||'Guest';
+      const amount=Number(d.querySelector('#payAmount').value);
+      if(!amount||amount<=0){toast('ငွေပမာဏ ထည့်ပါ');return;}
+      const btn=d.querySelector('#paySend'); btn.disabled=true; btn.textContent='ပို့နေသည်…';
+      try{
+        const shareToken=typeof token!=='undefined'?token:(location.hash.slice(1).trim());
+        await rpc('submit_salary_payment_request',{
+          p_share_token:shareToken,
+          p_loan_id:String(id),
+          p_payer_name:name,
+          p_amount:amount,
+          p_currency:cur,
+          p_device_label:typeof deviceLabel==='function'?deviceLabel():navigator.userAgent
+        });
+        d.remove();
+        toast('✅ Payment Request Owner ဆီ ပို့ပြီးပါပြီ');
+        if(typeof getShare==='function' && typeof render==='function'){
+          try{ const fresh=await getShare(); render(fresh); }catch(e){}
+        }
+      }catch(e){
+        console.error(e); toast('❌ Request မပို့နိုင်ပါ');
+        btn.disabled=false; btn.textContent='Request ပို့မည်';
+      }
+    };
+  };
+})();
+</script>
+'''
+              idx=s.rfind('</body>')
+              if idx<0: raise SystemExit('body closing tag not found')
+              s=s[:idx]+fix+s[idx:]
+
+          css_marker='share-payment-modal-css-v3'
+          if css_marker not in s:
+              css=r'''
+<style>
+/* share-payment-modal-css-v3 */
+#modal{z-index:10000}
+#modal .sheet{position:relative;z-index:10001}
+#modal input,#modal button{pointer-events:auto;touch-action:manipulation}
+#modal .btns button{min-height:46px}
+</style>
+'''
+              idx=s.find('</head>')
+              if idx<0: raise SystemExit('head closing tag not found')
+              s=s[:idx]+css+s[idx:]
+
+          p.write_text(s,encoding='utf-8')
 
       - name: Commit patch
         run: |
@@ -44,5 +115,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add share.html
           git diff --cached --quiet && exit 0
-          git commit -m 'fix share payment button tap handling'
+          git commit -m 'add working share payment request modal'
           git push
